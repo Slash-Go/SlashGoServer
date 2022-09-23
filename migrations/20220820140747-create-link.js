@@ -60,9 +60,13 @@ module.exports = {
           type: Sequelize.DATE,
         },
       })
-      .then(() => { queryInterface.addIndex("links",
-      ["org_id", "short_link", "created_by", "private"], {unique: true, name: "shortlink_index"});
-    });
+      .then(() => {
+        queryInterface.addIndex(
+          "links",
+          ["org_id", "short_link", "created_by", "private"],
+          { unique: true, name: "shortlink_index" }
+        );
+      });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable("links");

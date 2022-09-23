@@ -12,7 +12,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
         field: "org_id",
-        unique: 'compositeIndex',
+        unique: "compositeIndex",
         references: {
           model: "organizations",
           key: "id",
@@ -21,7 +21,7 @@ module.exports = {
       email: {
         allowNull: false,
         type: Sequelize.STRING,
-        unique: 'compositeIndex'
+        unique: "compositeIndex",
       },
       firstName: {
         type: Sequelize.STRING,
