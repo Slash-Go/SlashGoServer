@@ -10,17 +10,17 @@ export const login = (req: Request, res: Response) => {
 
   const email = req.body["email"];
   const password = req.body["password"];
-  
+
   if (email == null) {
     return res
-    .status(401)
-    .json({ error: "Required parameter `email` not provided or null" });
+      .status(401)
+      .json({ error: "Required parameter `email` not provided or null" });
   }
 
   if (password == null) {
     return res
-    .status(401)
-    .json({ error: "Required parameter `password` not provided or null" });
+      .status(401)
+      .json({ error: "Required parameter `password` not provided or null" });
   }
 
   user
@@ -33,11 +33,9 @@ export const login = (req: Request, res: Response) => {
     })
     .then((data: typeof user) => {
       if (data === null) {
-        return res
-        .status(401)
-        .json({ error: "User not found!" });
+        return res.status(401).json({ error: "User not found!" });
       }
-      
+
       bcrypt.compare(password, data.password, function (err, result) {
         if (result) {
           generateTokenPair(data.id)
