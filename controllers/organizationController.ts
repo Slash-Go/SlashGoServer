@@ -71,3 +71,31 @@ export const getOrgDetails = (req: Request, res: Response) => {
     }
   });
 };
+
+export const deactivateOrganization = (req: Request, res: Response) => {
+  const DB: any = db;
+  const { organization } = DB;
+
+  const orgId = req.params.orgId;
+
+  if (orgId == null || orgId === "") {
+    return res
+      .status(401)
+      .json({ error: "Required parameter `orgId` not provided or null" });
+  }
+
+  if (req.auth.userRole !== "global_admin") {
+    return res.status(401).json({
+      error: "Only Global Admins can delete orgs!",
+    });
+  }
+
+  organization.update({ active: false }, { where: { id: orgId, active: true }}).then((data: any) => {
+    console.log(data);
+    if (data == 1) {
+      return res.status(200).json({ status: `OK` });
+    } else {
+      return res.status(404).json({ error: `Unable to find organization` });
+    }
+  });
+};
