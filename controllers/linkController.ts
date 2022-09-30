@@ -29,24 +29,26 @@ export const createLink = (req: Request, res: Response) => {
       active: true,
     })
     .then((data: typeof link) => {
-      return res
-        .status(200)
-        .json({
-          id: data.id,
-          shortLink: data.shortLink,
-          type: data.type,
-          private: data.private,
-          createdBy: data.createdBy,
-          active: data.active,
-        });
-    });
-  /*.catch(() => { 
-      if (typeof isPrivate !== 'undefined' && isPrivate == true) { 
-        return res.status(400).json({ error: "This private shortlink is already defined" })
+      return res.status(200).json({
+        id: data.id,
+        shortLink: data.shortLink,
+        type: data.type,
+        private: data.private,
+        createdBy: data.createdBy,
+        active: data.active,
+      });
+    })
+    .catch(() => {
+      if (typeof isPrivate !== "undefined" && isPrivate == true) {
+        return res
+          .status(400)
+          .json({ error: "This private shortlink is already defined" });
       } else {
-        return res.status(400).json({ error: "This shortlink is already defined for your org" })
+        return res
+          .status(400)
+          .json({ error: "This shortlink is already defined for your org" });
       }
-  });*/
+    });
 };
 
 export const getLinkDetails = (req: Request, res: Response) => {

@@ -24,14 +24,12 @@ export const createOrganization = (req: Request, res: Response) => {
   organization
     .create({ id: uuidv4(), name: orgName, licenses: licenses, active: true })
     .then((data: typeof organization) => {
-      res
-        .status(200)
-        .json({
-          orgId: data.id,
-          orgName: orgName,
-          licenses: licenses,
-          createdAt: data.created_at,
-        });
+      res.status(200).json({
+        orgId: data.id,
+        orgName: orgName,
+        licenses: licenses,
+        createdAt: data.created_at,
+      });
     })
     .catch((err: any) => {
       res.status(500).json({ error: `Unable to create new organization` });
@@ -52,24 +50,20 @@ export const getOrgDetails = (req: Request, res: Response) => {
   }
 
   if (req.auth.userRole !== "global_admin" && req.auth.orgId != orgId) {
-    return res
-      .status(401)
-      .json({
-        error: "Cannot get information for orgId that you don't belong to",
-      });
+    return res.status(401).json({
+      error: "Cannot get information for orgId that you don't belong to",
+    });
   }
 
   organization.findByPk(orgId).then((data: typeof organization) => {
     if (data) {
-      res
-        .status(200)
-        .json({
-          orgId: data.id,
-          orgName: data.name,
-          licenses: data.licenses,
-          active: data.active,
-          createdAt: data.created_at,
-        });
+      res.status(200).json({
+        orgId: data.id,
+        orgName: data.name,
+        licenses: data.licenses,
+        active: data.active,
+        createdAt: data.created_at,
+      });
     } else {
       res
         .status(404)

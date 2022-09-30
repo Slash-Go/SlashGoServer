@@ -35,17 +35,15 @@ export const createUser = (req: Request, res: Response) => {
       active: true,
     })
     .then((data: typeof user) => {
-      res
-        .status(200)
-        .json({
-          email: data.email,
-          role: data.role,
-          orgId: data.orgId,
-          id: data.id,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          active: data.active,
-        });
+      res.status(200).json({
+        email: data.email,
+        role: data.role,
+        orgId: data.orgId,
+        id: data.id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        active: data.active,
+      });
     });
 };
 
@@ -65,17 +63,15 @@ export const getUserDetails = (req: Request, res: Response) => {
     })
     .then((data: typeof user) => {
       if (data) {
-        return res
-          .status(200)
-          .json({
-            email: data.email,
-            role: data.role,
-            orgId: data.orgId,
-            id: data.id,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            active: data.active,
-          });
+        return res.status(200).json({
+          email: data.email,
+          role: data.role,
+          orgId: data.orgId,
+          id: data.id,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          active: data.active,
+        });
       } else {
         return res
           .status(404)
