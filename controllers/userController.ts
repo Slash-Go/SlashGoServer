@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import db from "../models";
+import { getOrgId } from "../utils/apiutils";
 
 export const createUser = (req: Request, res: Response) => {
   const DB: any = db;
@@ -18,8 +19,7 @@ export const createUser = (req: Request, res: Response) => {
   const salt = bcrypt.genSaltSync(10);
   const hashedPass = bcrypt.hashSync(password, salt);
 
-  const orgId =
-    req.auth.userRole == "global_admin" ? req.body["orgId"] : req.auth.orgId;
+  const orgId = getOrgId(req);
 
   // TODO: Admin should not be able to create global admin
   const role = req.body["role"];
@@ -49,18 +49,27 @@ export const createUser = (req: Request, res: Response) => {
 
 export const getUserDetails = (req: Request, res: Response) => {
   const DB: any = db;
-  const { user } = DB;
+  const { user, organization } = DB;
 
   // TODO: API Validations
   const userId = req.params.userId;
-  const orgId = req.auth.orgId;
+  const orgId = getOrgId(req);
   user
     .findOne({
       where: {
         id: userId,
         orgId: orgId,
       },
-    })
+       include: [
+        {
+          model: organization,
+          where: {
+            active: true,
+          },
+          required: true,
+        },
+      ],
+   })
     .then((data: typeof user) => {
       if (data) {
         return res.status(200).json({

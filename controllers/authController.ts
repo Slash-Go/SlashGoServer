@@ -6,7 +6,7 @@ import { Op } from "sequelize";
 
 export const login = (req: Request, res: Response) => {
   const DB: any = db;
-  const { user } = DB;
+  const { user, organization } = DB;
 
   const email = req.body["email"];
   const password = req.body["password"];
@@ -30,6 +30,15 @@ export const login = (req: Request, res: Response) => {
         email: email,
         active: true,
       },
+      include: [
+        {
+          model: organization,
+          where: {
+            active: true,
+          },
+          required: true,
+        },
+      ],
     })
     .then((data: typeof user) => {
       if (data === null) {
