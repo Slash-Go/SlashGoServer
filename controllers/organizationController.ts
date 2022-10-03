@@ -90,12 +90,14 @@ export const deactivateOrganization = (req: Request, res: Response) => {
     });
   }
 
-  organization.update({ active: false }, { where: { id: orgId, active: true }}).then((data: any) => {
-    console.log(data);
-    if (data == 1) {
-      return res.status(200).json({ status: `OK` });
-    } else {
-      return res.status(404).json({ error: `Unable to find organization` });
-    }
-  });
+  organization
+    .update({ active: false }, { where: { id: orgId, active: true } })
+    .then((data: any) => {
+      console.log(data);
+      if (data == 1) {
+        return res.status(200).json({ status: `OK` });
+      } else {
+        return res.status(404).json({ error: `Unable to find organization` });
+      }
+    });
 };

@@ -33,6 +33,12 @@ module.exports = {
           type: Sequelize.DATE,
           field: "updated_at",
         },
+        orgHero: {
+          allowNull: false,
+          type: Sequelize.STRING,
+          field: "org_hero",
+          defaultValue: "go",
+        },
       },
       { underscored: true }
     );
