@@ -138,7 +138,6 @@ export const updateLink = (req: Request, res: Response) => {
     })
     .then((data: any) => {
       if (data) {
-        console.log(data);
         res.send(data);
       } else {
         res.status(404).json({ error: "Link with this id not found!" });
