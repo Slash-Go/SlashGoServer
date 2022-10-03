@@ -11,6 +11,7 @@ module.exports = {
           name: "Default Organization",
           licenses: 1,
           active: true,
+          org_hero: "go",
           created_at: sequelize.fn("NOW"),
           updated_at: sequelize.fn("NOW"),
         },

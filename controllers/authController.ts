@@ -48,8 +48,10 @@ export const login = (req: Request, res: Response) => {
       bcrypt.compare(password, data.password, function (err, result) {
         if (result) {
           generateTokenPair(data.id)
-            .then((tokenPair: any) => {
-              return res.json(tokenPair);
+            .then((tokenResponse: any) => {
+              // Add orgHero in token refresh response
+              tokenResponse["orgHero"] = data.organization.orgHero;
+              return res.json(tokenResponse);
             })
             .catch((err: any) => {
               return res
@@ -65,7 +67,7 @@ export const login = (req: Request, res: Response) => {
 
 export const refreshToken = (req: Request, res: Response) => {
   const DB: any = db;
-  const { token } = DB;
+  const { token, user, organization } = DB;
 
   // TODO: API Validations
   // Only allow access to users in own org
@@ -73,14 +75,34 @@ export const refreshToken = (req: Request, res: Response) => {
   const refreshToken = req.body["refreshToken"];
   token
     .findOne({
-      attributes: ["token", "userId", "expiry"],
+      attributes: ["token", "userId", "expiry", "user->organization.org_hero"],
       where: { token: refreshToken, expiry: { [Op.gte]: sequelize.fn("NOW") } },
+      include: [
+        {
+          model: user,
+          where: {
+            active: true,
+          },
+          include: [
+            {
+              model: organization,
+              where: {
+                active: true,
+              },
+              required: true,
+            },
+          ],
+          required: true,
+        },
+      ],
     })
     .then((data: typeof token) => {
       if (data) {
         generateTokenPair(data.userId)
-          .then((tokenPair: any) => {
-            return res.json(tokenPair);
+          .then((tokenResponse: any) => {
+            // Add orgHero in token refresh response
+            tokenResponse["orgHero"] = data.user.organization.orgHero;
+            return res.json(tokenResponse);
           })
           .catch((err: any) => {
             return res
@@ -90,8 +112,8 @@ export const refreshToken = (req: Request, res: Response) => {
       } else {
         return res.status(401).json({ error: "Invalid/Expired Refresh Token" });
       }
-    })
-    .catch(() => {
-      return res.status(401).json({ error: "Unknown Error in Token Refresh" });
     });
+  /*.catch(() => {
+      return res.status(401).json({ error: "Unknown Error in Token Refresh" });
+    });*/
 };

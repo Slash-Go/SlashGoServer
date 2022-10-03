@@ -33,12 +33,18 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: true,
       },
+      orgHero: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "go",
+      },
     },
     {
       sequelize,
       modelName: "organization",
       updatedAt: "created_at",
       createdAt: "updated_at",
+      underscored: true,
     }
   );
   return organization;

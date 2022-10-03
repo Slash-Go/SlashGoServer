@@ -60,7 +60,7 @@ export const getUserDetails = (req: Request, res: Response) => {
         id: userId,
         orgId: orgId,
       },
-       include: [
+      include: [
         {
           model: organization,
           where: {
@@ -69,7 +69,7 @@ export const getUserDetails = (req: Request, res: Response) => {
           required: true,
         },
       ],
-   })
+    })
     .then((data: typeof user) => {
       if (data) {
         return res.status(200).json({
