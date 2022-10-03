@@ -8,6 +8,7 @@ export const createOrganization = (req: Request, res: Response) => {
 
   const licenses = req.body["licenses"];
   const orgName = req.body["orgName"];
+  const orgHero = req.body["orgHero"];
 
   if (licenses == null || licenses <= 0) {
     return res
@@ -22,7 +23,7 @@ export const createOrganization = (req: Request, res: Response) => {
   }
 
   organization
-    .create({ id: uuidv4(), name: orgName, licenses: licenses, active: true })
+    .create({ id: uuidv4(), name: orgName, licenses: licenses, active: true, orgHero: orgHero })
     .then((data: typeof organization) => {
       res.status(200).json({
         orgId: data.id,

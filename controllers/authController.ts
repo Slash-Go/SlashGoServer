@@ -25,7 +25,7 @@ export const login = (req: Request, res: Response) => {
 
   user
     .findOne({
-      attributes: ["id", "email", "password", "orgId"],
+      attributes: ["id", "email", "password", "orgId","organization.org_hero"],
       where: {
         email: email,
         active: true,
