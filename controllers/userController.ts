@@ -138,3 +138,38 @@ export const getAllUsers = (req: Request, res: Response) => {
       res.status(500).json({ error: "Unable to get user information" })
     );
 };
+
+export const updateUser = (req: Request, res: Response) => {
+  const DB: any = db;
+  const { user } = DB;
+
+  // TODO: API Validations
+  // TODO: Handle password update and active update
+  const userId = req.params.userId;
+  const orgId = getOrgId(req);
+  const updateRule = { orgId: orgId, id: userId };
+
+  // non admins can only update links they created
+  if (
+    req.auth.userRole !== "admin" &&
+    req.auth.userRole !== "global_admin" &&
+    req.auth.userId !== userId
+  ) {
+    return res
+      .status(400)
+      .json({ error: "Non-admin users can only edit their own details" });
+  }
+
+  user
+    .update(req.body, {
+      where: updateRule,
+    })
+    .then((data: any) => {
+      if (data) {
+        res.status(200).send(data);
+      } else {
+        res.status(404).json({ error: "User with this id not found!" });
+      }
+    })
+    .catch(() => res.json({ error: "Could not get details for id" }));
+};
