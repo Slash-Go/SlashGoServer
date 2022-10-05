@@ -91,3 +91,50 @@ export const getUserDetails = (req: Request, res: Response) => {
       res.status(500).json({ error: "Unable to get user information" })
     );
 };
+
+export const getAllUsers = (req: Request, res: Response) => {
+  const DB: any = db;
+  const { user, organization } = DB;
+
+  // TODO: API Validations
+  const orgId = getOrgId(req);
+  user
+    .findAll({
+      where: {
+        orgId: orgId,
+      },
+      include: [
+        {
+          model: organization,
+          where: {
+            active: true,
+          },
+          required: true,
+        },
+      ],
+    })
+    .then((data: Array<typeof user>) => {
+      if (data) {
+        return res.status(200).json(
+          data.map((data) => {
+            return {
+              email: data.email,
+              role: data.role,
+              orgId: data.orgId,
+              id: data.id,
+              firstName: data.firstName,
+              lastName: data.lastName,
+              active: data.active,
+            };
+          })
+        );
+      } else {
+        return res
+          .status(404)
+          .json({ error: "Could not fine user with that id" });
+      }
+    })
+    .catch(() =>
+      res.status(500).json({ error: "Unable to get user information" })
+    );
+};

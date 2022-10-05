@@ -23,7 +23,13 @@ export const createOrganization = (req: Request, res: Response) => {
   }
 
   organization
-    .create({ id: uuidv4(), name: orgName, licenses: licenses, active: true, orgHero: orgHero })
+    .create({
+      id: uuidv4(),
+      name: orgName,
+      licenses: licenses,
+      active: true,
+      orgHero: orgHero,
+    })
     .then((data: typeof organization) => {
       res.status(200).json({
         orgId: data.id,
