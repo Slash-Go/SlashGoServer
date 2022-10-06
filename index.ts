@@ -9,6 +9,9 @@ import { router as healthRoutes } from "./api/healthRoutes";
 const app: Express = express();
 const port = 3000;
 
+// Remove `x-powered-by` header
+app.disable("x-powered-by");
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
