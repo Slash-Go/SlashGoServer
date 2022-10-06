@@ -11,7 +11,7 @@ module.exports = {
         {
           id: "13370000-0000-0000-0000-000000000000",
           org_id: "00000000-0000-0000-0000-000000001337",
-          email: "root@slashgo.cloud",
+          email: "root@slashgo.link",
           first_name: "CHANGE",
           last_name: "ME",
           password: await bcrypt.hash("admin", saltRounds),
