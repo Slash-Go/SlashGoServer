@@ -25,7 +25,7 @@ export const login = (req: Request, res: Response) => {
 
   user
     .findOne({
-      attributes: ["id", "email", "password", "orgId", "organization.org_hero"],
+      attributes: ["id", "email", "role", "password", "orgId", "organization.org_hero"],
       where: {
         email: email,
         active: true,
@@ -51,6 +51,7 @@ export const login = (req: Request, res: Response) => {
             .then((tokenResponse: any) => {
               // Add orgHero in token refresh response
               tokenResponse["orgHero"] = data.organization.orgHero;
+              tokenResponse["role"] = data.role;
               return res.json(tokenResponse);
             })
             .catch((err: any) => {
@@ -102,7 +103,8 @@ export const refreshToken = (req: Request, res: Response) => {
           .then((tokenResponse: any) => {
             // Add orgHero in token refresh response
             tokenResponse["orgHero"] = data.user.organization.orgHero;
-            return res.json(tokenResponse);
+            tokenResponse["role"] = data.user.role;
+             res.json(tokenResponse);
           })
           .catch((err: any) => {
             return res
