@@ -3,38 +3,11 @@ import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import db from "../models";
 import { getOrgId } from "../utils/apiutils";
+import { randomUUID } from "crypto";
 
 export const createUser = (req: Request, res: Response) => {
-  const DB: any = db;
-  const { user } = DB;
-
-  // TODO: API Validations
-  // TODO: email is of email format
-  const email = req.body["email"];
-  const firstName = req.body["firstName"];
-  const lastName = req.body["lastName"];
-
-  const password = req.body["password"];
-  // TODO: Make this async
-  const salt = bcrypt.genSaltSync(10);
-  const hashedPass = bcrypt.hashSync(password, salt);
-
-  const orgId = getOrgId(req);
-
-  // TODO: Admin should not be able to create global admin
-  const role = req.body["role"];
-  user
-    .create({
-      id: uuidv4(),
-      orgId: orgId,
-      email: email,
-      firstName: firstName,
-      role: role,
-      lastName: lastName,
-      password: hashedPass,
-      active: true,
-    })
-    .then((data: typeof user) => {
+  addUser(req)
+    .then((data) =>
       res.status(200).json({
         email: data.email,
         role: data.role,
@@ -43,7 +16,69 @@ export const createUser = (req: Request, res: Response) => {
         firstName: data.firstName,
         lastName: data.lastName,
         active: data.active,
-      });
+      })
+    )
+    .catch(() => res.status(500).json({ error: "Unable to create user" }));
+};
+
+export const inviteUser = (req: Request, res: Response) => {
+  req.body.password = randomUUID();
+  console.log(req.body.password);
+
+  addUser(req)
+    .then((data) =>
+      res.status(200).json({
+        email: data.email,
+        role: data.role,
+        orgId: data.orgId,
+        id: data.id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        active: data.active,
+      })
+    )
+    .catch(() => res.status(500).json({ error: "Unable to create user" }));
+};
+
+export const acceptInvite = (req: Request, res: Response) => {
+  const DB: any = db;
+  const { user } = DB;
+  //TODO: Add Validations
+  const userId = req.body["userId"];
+  const password = req.body["password"];
+  const token = req.body["token"];
+
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPass = bcrypt.hashSync(password, salt);
+
+  // TODO: Admin should not be able to create global admin
+  const role = req.body["role"];
+  user
+    .update(
+      {
+        password: hashedPass,
+        active: true,
+      },
+      {
+        where: {
+          id: userId,
+          password: token,
+        },
+      }
+    )
+    .then((data: any) => {
+      if (data[0] == 1) {
+        return res.json({ message: "Successfully Activated Account!" });
+      } else {
+        return res
+          .status(400)
+          .json({
+            error: "Unable to Activate Account. Have you been invited?",
+          });
+      }
+    })
+    .catch(() => {
+      return res.status(500).json({ error: "Error in Activating user" });
     });
 };
 
@@ -172,4 +207,47 @@ export const updateUser = (req: Request, res: Response) => {
       }
     })
     .catch(() => res.json({ error: "Could not get details for id" }));
+};
+
+const addUser = async (req: Request) => {
+  const DB: any = db;
+  const { user } = DB;
+  // TODO: API Validations
+  // TODO: email is of email format
+  const email = req.body["email"];
+  const firstName = req.body["firstName"];
+  const lastName = req.body["lastName"];
+
+  const password = req.body["password"];
+  // TODO: Make this async
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPass = bcrypt.hashSync(password, salt);
+
+  const orgId = getOrgId(req);
+
+  // TODO: Admin should not be able to create global admin
+  const role = req.body["role"];
+  return await user
+    .create({
+      id: uuidv4(),
+      orgId: orgId,
+      email: email,
+      firstName: firstName,
+      role: role,
+      lastName: lastName,
+      password: hashedPass,
+      active: true,
+    })
+    .then((data: typeof user) => {
+      return {
+        email: data.email,
+        role: data.role,
+        orgId: data.orgId,
+        id: data.id,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        active: data.active,
+      };
+    });
 };
