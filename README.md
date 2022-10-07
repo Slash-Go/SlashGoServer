@@ -18,7 +18,7 @@ $ npx sequelize-cli db:seed:all
 $ npm run dev
 
 // Create access token for seed user
-$ curl -k -XPOST http://localhost:3000/auth/login -d'{"userName": "root@slashgo.link", "password": "admin"}' -H"content-type:application/json"
+$ curl -k -XPOST http://localhost:3000/auth/login -d'{"email": "root@slashgo.link", "password": "admin"}' -H"content-type:application/json"
 
 // Now you can use the accessToken to call other APIs
 ```
