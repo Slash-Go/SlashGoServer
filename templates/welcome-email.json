@@ -1,0 +1,5 @@
+{
+  "subject": "Welcome to Slash/Go, <%= firstName %>",
+  "plaintext": "This is a welcome email to Slash/Go sent to <%= lastName %>",
+  "html": "Welcome to <b>Slash/Go</b>, an orgwide link manager, <<i>%= username %></i>"
+}

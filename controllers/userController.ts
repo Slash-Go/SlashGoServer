@@ -70,11 +70,9 @@ export const acceptInvite = (req: Request, res: Response) => {
       if (data[0] == 1) {
         return res.json({ message: "Successfully Activated Account!" });
       } else {
-        return res
-          .status(400)
-          .json({
-            error: "Unable to Activate Account. Have you been invited?",
-          });
+        return res.status(400).json({
+          error: "Unable to Activate Account. Have you been invited?",
+        });
       }
     })
     .catch(() => {

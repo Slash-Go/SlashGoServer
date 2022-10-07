@@ -1,26 +1,71 @@
 {
   "development": {
-    "username": "root",
-    "password": null,
-    "database": "database_development",
-    "host": "127.0.0.1",
-    "dialect": "postgres",
-    "logging": true
+    "data": {
+      "username": "root",
+      "password": null,
+      "database": "database_development",
+      "host": "127.0.0.1",
+      "dialect": "postgres",
+      "logging": true
+    },
+    "email": {
+      "enabled": false,
+      "host": "smtp.mail-provider.com",
+      "port": 465,
+      "user": "user@your-domain.com",
+      "password": "your-password",
+      "ignoreTLS": false,
+      "defaultFrom": {
+        "name": "Slash/Go Dev",
+        "address": "admin@your-domain.com",
+        "replyTo": "no-reply@your-domain.com"
+      }
+    }
   },
   "test": {
-    "username": "root",
-    "password": null,
-    "database": "database_test",
-    "host": "127.0.0.1",
-    "dialect": "postgres",
-    "logging": true
+    "data": {
+      "username": "root",
+      "password": null,
+      "database": "database_test",
+      "host": "127.0.0.1",
+      "dialect": "postgres",
+      "logging": true
+    },
+    "email": {
+      "enabled": true,
+      "host": "smtp.mail-provider.com",
+      "port": 465,
+      "user": "user@your-domain.com",
+      "password": "your-password",
+      "ignoreTLS": false,
+      "defaultFrom": {
+        "name": "Slash/Go Test",
+        "address": "admin@your-domain.com",
+        "replyTo": "no-reply@your-domain.com"
+      }
+    }
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
-    "dialect": "postgres",
-    "logging": false
+    "data": {
+      "username": "root",
+      "password": null,
+      "database": "database_production",
+      "host": "127.0.0.1",
+      "dialect": "postgres",
+      "logging": false
+    },
+    "email": {
+      "enabled": true,
+      "host": "smtp.mail-provider.com",
+      "port": 465,
+      "user": "user@your-domain.com",
+      "password": "your-password",
+      "ignoreTLS": false,
+      "defaultFrom": {
+        "name": "Slash/Go",
+        "address": "admin@your-domain.com",
+        "replyTo": "no-reply@your-domain.com"
+      }
+    }
   }
 }
