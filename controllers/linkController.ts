@@ -11,6 +11,7 @@ export const createLink = (req: Request, res: Response) => {
   // TODO: API Validations
   const shortLink = req.body["shortLink"];
   const fullUrl = req.body["fullUrl"];
+  const description = req.body["description"];
   const type = req.body["type"];
   const isPrivate = req.body["private"];
 
@@ -23,6 +24,7 @@ export const createLink = (req: Request, res: Response) => {
       orgId: orgId,
       shortLink: shortLink,
       fullUrl: fullUrl,
+      description: description,
       private: isPrivate,
       type: type,
       createdBy: createdBy,
@@ -32,6 +34,7 @@ export const createLink = (req: Request, res: Response) => {
       return res.status(200).json({
         id: data.id,
         shortLink: data.shortLink,
+        description: data.description,
         type: data.type,
         private: data.private,
         createdBy: data.createdBy,
@@ -68,6 +71,7 @@ export const getLinkDetails = (req: Request, res: Response) => {
           orgId: orgId,
           shortLink: data.shortLink,
           fullUrl: data.fullUrl,
+          description: data.description,
           private: data.private,
           type: data.type,
           createdBy: data.createdBy,
@@ -104,6 +108,7 @@ export const getAllLinks = (req: Request, res: Response) => {
               id: data.id,
               shortLink: data.shortLink,
               fullUrl: data.fullUrl,
+              description: data.descripion,
               private: data.private,
               createdBy: data.createdBy,
               type: data.type,
@@ -174,6 +179,6 @@ export const deleteLink = (req: Request, res: Response) => {
           .status(400)
           .json({ error: `Unable to delete shortlink. Contact your admin/s.` });
       }
-    });
-  //.catch(() => res.status(500).json({error: `Error when deleting shortlink`}));
+    })
+  .catch(() => res.status(500).json({error: `Error when deleting shortlink`}));
 };

@@ -28,6 +28,10 @@ module.exports = {
           type: Sequelize.TEXT,
           field: "full_url",
         },
+        description: {
+          allowNull: true,
+          type: Sequelize.TEXT
+        },
         createdBy: {
           allowNull: false,
           type: Sequelize.UUID,

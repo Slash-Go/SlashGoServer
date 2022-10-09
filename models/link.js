@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       orgId: DataTypes.STRING,
       shortLink: DataTypes.STRING,
       fullUrl: DataTypes.STRING,
+      description: DataTypes.STRING,
       createdBy: DataTypes.STRING,
       type: DataTypes.STRING,
       private: DataTypes.BOOLEAN,
