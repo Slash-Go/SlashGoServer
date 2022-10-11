@@ -3,13 +3,19 @@ import {
   createOrganization,
   deactivateOrganization,
   getOrgDetails,
+  updateOrgDetails,
 } from "../controllers/organizationController";
-import { authenticate, globalAdminsOnly } from "../middleware/authMiddleware";
+import {
+  adminsOnly,
+  authenticate,
+  globalAdminsOnly,
+} from "../middleware/authMiddleware";
 
 export const router = express.Router();
 
 router.post("/", authenticate, globalAdminsOnly, createOrganization);
 router.get("/:orgId", authenticate, getOrgDetails);
+router.patch("/:orgId", authenticate, adminsOnly, updateOrgDetails);
 router.delete(
   "/:orgId",
   authenticate,

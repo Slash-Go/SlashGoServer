@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import db from "../models";
+import { getOrgId } from "../utils/apiutils";
 
 export const createOrganization = (req: Request, res: Response) => {
   const DB: any = db;
@@ -44,11 +45,10 @@ export const createOrganization = (req: Request, res: Response) => {
 };
 
 export const getOrgDetails = (req: Request, res: Response) => {
-  // TODO: Ensure you can only get your own org details?
   const DB: any = db;
   const { organization } = DB;
 
-  const orgId = req.params.orgId;
+  const orgId = getOrgId(req);
 
   if (orgId == null || orgId === "") {
     return res
@@ -68,6 +68,7 @@ export const getOrgDetails = (req: Request, res: Response) => {
         orgId: data.id,
         orgName: data.name,
         licenses: data.licenses,
+        orgHero: data.orgHero,
         active: data.active,
         createdAt: data.created_at,
       });
@@ -77,6 +78,44 @@ export const getOrgDetails = (req: Request, res: Response) => {
         .json({ error: `Unable to find organization with orgId ${orgId}` });
     }
   });
+};
+
+export const updateOrgDetails = (req: Request, res: Response) => {
+  const DB: any = db;
+  const { organization } = DB;
+
+  const orgId = getOrgId(req);
+
+  if (orgId !== req.params.orgId) {
+    return res.status(401).json({
+      error: "Cannot update org details for an org you don't belong to",
+    });
+  }
+
+  if (
+    (req.body.name || req.body.licenses || req.body.active) &&
+    req.auth.userRole !== "global_admin"
+  ) {
+    return res.status(401).json({
+      error:
+        "Attempted to update fields which can only be updated by global admins",
+    });
+  }
+
+  organization
+    .update(req.body, {
+      where: { id: req.params.orgId },
+    })
+    .then((data: any) => {
+      if (data) {
+        res.status(200).json({ message: "Successfully updated org details!" });
+      } else {
+        res.status(404).json({ error: "Organization with this id not found!" });
+      }
+    })
+    .catch(() =>
+      res.json({ error: "Could not update details for organization" })
+    );
 };
 
 export const deactivateOrganization = (req: Request, res: Response) => {

@@ -180,5 +180,7 @@ export const deleteLink = (req: Request, res: Response) => {
           .json({ error: `Unable to delete shortlink. Contact your admin/s.` });
       }
     })
-  .catch(() => res.status(500).json({error: `Error when deleting shortlink`}));
+    .catch(() =>
+      res.status(500).json({ error: `Error when deleting shortlink` })
+    );
 };
