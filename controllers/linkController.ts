@@ -108,7 +108,7 @@ export const getAllLinks = (req: Request, res: Response) => {
               id: data.id,
               shortLink: data.shortLink,
               fullUrl: data.fullUrl,
-              description: data.descripion,
+              description: data.description,
               private: data.private,
               createdBy: data.createdBy,
               type: data.type,
