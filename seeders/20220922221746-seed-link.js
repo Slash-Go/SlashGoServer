@@ -13,7 +13,7 @@ module.exports = {
           full_url: "https://github.com/Slash-Go",
           description: "Github Repo for Slash/Go 🎉",
           created_by: "13370000-0000-0000-0000-000000000000",
-          type: "default",
+          type: "static",
           private: false,
           active: true,
           created_at: sequelize.fn("NOW"),
