@@ -29,10 +29,6 @@ export const sendMail = (options: EmailOptions) => {
     initializeTransporter();
   }
 
-  console.log(__dirname);
-  console.log(
-    path.join(__dirname, "..", "templates", `${options.template}.json`)
-  );
   fs.readFile(
     path.join(__dirname, "..", "templates", `${options.template}.json`),
     (err: NodeJS.ErrnoException | null, data: Buffer) => {
@@ -83,7 +79,7 @@ const initializeTransporter = () => {
 
   transporter.verify((error, _) => {
     if (error) {
-      console.log("Error setting uup Transport");
+      console.log("Error setting up Transport");
       console.log(error);
     } else {
       console.log("Email Server is ready to take our messages");
