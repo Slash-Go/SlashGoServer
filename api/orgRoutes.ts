@@ -14,7 +14,7 @@ import {
 export const router = express.Router();
 
 router.post("/", authenticate, globalAdminsOnly, createOrganization);
-router.get("/:orgId", authenticate, getOrgDetails);
+router.get("/", authenticate, getOrgDetails);
 router.patch("/:orgId", authenticate, adminsOnly, updateOrgDetails);
 router.delete(
   "/:orgId",
