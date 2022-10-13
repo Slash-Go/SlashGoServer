@@ -1,0 +1,11 @@
+const path = require('path');
+const fs = require('fs');
+
+const env = process.env.NODE_ENV || 'development';
+
+const config = JSON.parse(fs.readFileSync('config/config.json'));
+fs.writeFileSync('config/cli-config.json', JSON.stringify(config[env]['data']));
+
+module.exports = {
+  'config': path.resolve('config', 'cli-config.json'),
+}

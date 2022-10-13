@@ -106,3 +106,4 @@ dist
 fly.toml
 .vscode/
 config/config.json
+config/cli-config.json
