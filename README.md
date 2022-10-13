@@ -10,6 +10,7 @@ The most seamless way to manage intra-organization knowledge through memorable s
 
 <p align="center">
 <img alt="GitHub" src="https://img.shields.io/github/license/Slash-Go/SlashGoServer">
+<img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/Slash-Go/SlashGoServer/Node.js%20CI">  
 <img alt="GitHub issues" src="https://img.shields.io/github/issues/Slash-Go/SlashGoServer">
 <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/SlashGoApp">
 </p>
