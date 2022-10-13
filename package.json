@@ -2,14 +2,15 @@
   "name": "slashgo-server",
   "version": "0.0.1",
   "description": "Open-source org-wide shared shortlink manager",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "clean": "rm -rf dist",
     "build": "npx tsc && cp -r config dist/ && cp -r templates dist/",
-    "start": "node dist/index.js",
-    "predev": "mkdir -p dist/templates && cp -r templates/* dist/templates/",
-    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node dist/server.js",
+    "predev": "mkdir -p dist/templates && cp -r templates/* dist/templates/ && mkdir -p dist/config && cp -r config/* dist/config/",
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/server.js\"",
+    "pretest": "mkdir -p dist/config && cp -r config/* dist/config/",
+    "test": "jest --testTimeout=5000"
   },
   "repository": {
     "type": "git",
