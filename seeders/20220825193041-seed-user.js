@@ -17,7 +17,7 @@ module.exports = {
           first_name: "CHANGE",
           last_name: "ME",
           password: await bcrypt.hash(rootPassword, saltRounds),
-          active: true,
+          status: "active",
           role: "global_admin",
           created_at: sequelize.fn("NOW"),
           updated_at: sequelize.fn("NOW"),

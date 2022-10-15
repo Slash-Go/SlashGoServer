@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import db, { sequelize } from "../models";
 import { generateTokenPair } from "../middleware/authMiddleware";
 import { Op } from "sequelize";
+import { userStatus } from "../utils/defaults";
 
 export const login = (req: Request, res: Response) => {
   const DB: any = db;
@@ -35,7 +36,7 @@ export const login = (req: Request, res: Response) => {
       ],
       where: {
         email: email,
-        active: true,
+        status: userStatus.active,
       },
       include: [
         {
@@ -49,7 +50,7 @@ export const login = (req: Request, res: Response) => {
     })
     .then((data: typeof user) => {
       if (data === null) {
-        return res.status(401).json({ error: "User not found!" });
+        return res.status(401).json({ error: "User not found or not active!" });
       }
 
       bcrypt.compare(password, data.password, function (err, result) {
@@ -89,7 +90,7 @@ export const refreshToken = (req: Request, res: Response) => {
         {
           model: user,
           where: {
-            active: true,
+            status: userStatus.active,
           },
           include: [
             {
@@ -121,8 +122,8 @@ export const refreshToken = (req: Request, res: Response) => {
       } else {
         return res.status(401).json({ error: "Invalid/Expired Refresh Token" });
       }
-    });
-  /*.catch(() => {
+    })
+    .catch(() => {
       return res.status(401).json({ error: "Unknown Error in Token Refresh" });
-    });*/
+    });
 };

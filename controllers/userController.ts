@@ -4,11 +4,11 @@ import bcrypt from "bcrypt";
 import db from "../models";
 import { getOrgId } from "../utils/apiutils";
 import { randomUUID } from "crypto";
-import { MIN_PASSWORD_LENGTH } from "../utils/defaults";
+import { MIN_PASSWORD_LENGTH, userStatus } from "../utils/defaults";
 import { sendMail } from "../services/email";
 
 export const createUser = (req: Request, res: Response) => {
-  addUser(req)
+  addUser(req, userStatus.active)
     .then((data) =>
       res.status(200).json({
         email: data.email,
@@ -17,7 +17,7 @@ export const createUser = (req: Request, res: Response) => {
         id: data.id,
         firstName: data.firstName,
         lastName: data.lastName,
-        active: data.active,
+        status: data.status,
       })
     )
     .catch(() => res.status(500).json({ error: "Unable to create user" }));
@@ -26,7 +26,7 @@ export const createUser = (req: Request, res: Response) => {
 export const inviteUser = (req: Request, res: Response) => {
   req.body.password = randomUUID();
 
-  addUser(req).then((data) => {
+  addUser(req, userStatus.invited).then((data) => {
     //TODO: Handle welcome email for SSO and GSuite Auth
     if (data.org.auth === "password") {
       sendMail({
@@ -48,7 +48,7 @@ export const inviteUser = (req: Request, res: Response) => {
       id: data.user.id,
       firstName: data.user.firstName,
       lastName: data.user.lastName,
-      active: data.user.active,
+      status: data.user.status,
     });
   });
   //.catch(() => res.status(500).json({ error: "Unable to create user" }));
@@ -93,7 +93,7 @@ export const acceptInvite = (req: Request, res: Response) => {
     .update(
       {
         password: hashedPass,
-        active: true,
+        status: userStatus.active,
       },
       {
         where: {
@@ -150,7 +150,7 @@ export const getUserDetails = (req: Request, res: Response) => {
           id: data.id,
           firstName: data.firstName,
           lastName: data.lastName,
-          active: data.active,
+          status: data.status,
         });
       } else {
         return res
@@ -195,7 +195,7 @@ export const getAllUsers = (req: Request, res: Response) => {
               id: data.id,
               firstName: data.firstName,
               lastName: data.lastName,
-              active: data.active,
+              status: data.status,
             };
           })
         );
@@ -245,7 +245,7 @@ export const updateUser = (req: Request, res: Response) => {
     .catch(() => res.json({ error: "Could not get details for id" }));
 };
 
-const addUser = async (req: Request) => {
+const addUser = async (req: Request, userStatus: userStatus) => {
   const DB: any = db;
   const { user, organization } = DB;
   // TODO: API Validations
@@ -272,7 +272,7 @@ const addUser = async (req: Request) => {
       role: role,
       lastName: lastName,
       password: hashedPass,
-      active: false,
+      status: userStatus,
     })
     .then((data: typeof user) => {
       return organization
@@ -287,7 +287,7 @@ const addUser = async (req: Request) => {
               password: data.password,
               firstName: data.firstName,
               lastName: data.lastName,
-              active: data.active,
+              status: data.status,
             },
             org: {
               orgId: org_data.id,
