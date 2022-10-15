@@ -16,6 +16,8 @@ export const createUser = (req: Request, res: Response) => {
         firstName: data.firstName,
         lastName: data.lastName,
         active: data.active,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
       })
     )
     .catch(() => res.status(500).json({ error: "Unable to create user" }));
@@ -23,10 +25,9 @@ export const createUser = (req: Request, res: Response) => {
 
 export const inviteUser = (req: Request, res: Response) => {
   req.body.password = randomUUID();
-  console.log(req.body.password);
 
   addUser(req)
-    .then((data) =>
+    .then((data) => {
       res.status(200).json({
         email: data.email,
         role: data.role,
@@ -35,8 +36,10 @@ export const inviteUser = (req: Request, res: Response) => {
         firstName: data.firstName,
         lastName: data.lastName,
         active: data.active,
-      })
-    )
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+      });
+    })
     .catch(() => res.status(500).json({ error: "Unable to create user" }));
 };
 
@@ -129,7 +132,6 @@ export const getAllUsers = (req: Request, res: Response) => {
   const DB: any = db;
   const { user, organization } = DB;
 
-  // TODO: API Validations
   const orgId = getOrgId(req);
   user
     .findAll({
@@ -164,7 +166,7 @@ export const getAllUsers = (req: Request, res: Response) => {
       } else {
         return res
           .status(404)
-          .json({ error: "Could not fine user with that id" });
+          .json({ error: "Could not get list of users for this org" });
       }
     })
     .catch(() =>

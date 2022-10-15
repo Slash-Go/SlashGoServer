@@ -77,10 +77,13 @@ export const refreshToken = (req: Request, res: Response) => {
   const DB: any = db;
   const { token, user, organization } = DB;
 
-  // TODO: API Validations
-  // Only allow access to users in own org
-
   const refreshToken = req.body["refreshToken"];
+  if (refreshToken == null) {
+    return res.status(401).json({
+      error: "Required parameter `refreshToken` not provided or null",
+    });
+  }
+
   token
     .findOne({
       attributes: ["token", "userId", "expiry", "user->organization.org_hero"],
@@ -121,8 +124,8 @@ export const refreshToken = (req: Request, res: Response) => {
       } else {
         return res.status(401).json({ error: "Invalid/Expired Refresh Token" });
       }
-    });
-  /*.catch(() => {
+    })
+    .catch(() => {
       return res.status(401).json({ error: "Unknown Error in Token Refresh" });
-    });*/
+    });
 };
