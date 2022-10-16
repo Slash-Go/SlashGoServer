@@ -13,6 +13,7 @@ app.disable("x-powered-by");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
 
 app.use("/org", orgRoutes);
 app.use("/user", userRoutes);

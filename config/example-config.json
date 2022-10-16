@@ -1,5 +1,8 @@
 {
   "development": {
+    "general": {
+      "baseUrl": "http://localhost:3000"
+    },
     "data": {
       "username": "root",
       "password": null,
@@ -23,6 +26,9 @@
     }
   },
   "test": {
+    "general": {
+      "baseUrl": "http://localhost:3000"
+    },
     "data": {
       "username": "root",
       "password": null,
@@ -46,6 +52,9 @@
     }
   },
   "production": {
+    "general": {
+      "baseUrl": "https://slashgo.link"
+    },
     "data": {
       "username": "root",
       "password": null,

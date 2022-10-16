@@ -4,43 +4,63 @@ import bcrypt from "bcrypt";
 import db from "../models";
 import { getOrgId } from "../utils/apiutils";
 import { randomUUID } from "crypto";
+import { MIN_PASSWORD_LENGTH, userStatus } from "../utils/defaults";
+import { sendMail } from "../services/email";
 
 export const createUser = (req: Request, res: Response) => {
-  addUser(req)
-    .then((data) =>
-      res.status(200).json({
+  addUser(req, userStatus.active)
+    .then((data) => {
+      return res.status(200).json({
         email: data.email,
         role: data.role,
         orgId: data.orgId,
         id: data.id,
         firstName: data.firstName,
         lastName: data.lastName,
-        active: data.active,
+        status: data.status,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
-      })
-    )
-    .catch(() => res.status(500).json({ error: "Unable to create user" }));
+      });
+    })
+    .catch(() => {
+      return res.status(500).json({ error: "Unable to create user" });
+    });
 };
 
 export const inviteUser = (req: Request, res: Response) => {
   req.body.password = randomUUID();
 
-  addUser(req)
+  addUser(req, userStatus.invited)
     .then((data) => {
-      res.status(200).json({
-        email: data.email,
-        role: data.role,
-        orgId: data.orgId,
-        id: data.id,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        active: data.active,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
+      //TODO: Handle welcome email for SSO and GSuite Auth
+      if (data.org.auth === "password") {
+        sendMail({
+          to: data.user.email,
+          template: "user-invite-email",
+          dynVars: {
+            firstName: data.user.firstName ? data.user.firstName : "",
+            lastName: data.user.lastName ? data.user.lastName : "",
+            userId: data.user.id,
+            orgName: data.org.orgName,
+            activationCode: data.user.password,
+          },
+        });
+      }
+      return res.status(200).json({
+        email: data.user.email,
+        role: data.user.role,
+        orgId: data.user.orgId,
+        id: data.user.id,
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        status: data.user.status,
+        createdAt: data.user.createdAt,
+        updatedAt: data.user.updatedAt,
       });
     })
-    .catch(() => res.status(500).json({ error: "Unable to create user" }));
+    .catch(() => {
+      return res.status(500).json({ error: "Unable to create user" });
+    });
 };
 
 export const acceptInvite = (req: Request, res: Response) => {
@@ -51,27 +71,52 @@ export const acceptInvite = (req: Request, res: Response) => {
   const password = req.body["password"];
   const token = req.body["token"];
 
+  if (userId == null) {
+    return res.status(400).json({
+      error: "Required field `userId` not provided or null",
+    });
+  }
+
+  if (token == null) {
+    return res.status(400).json({
+      error: "Required field `token` not provided or null",
+    });
+  }
+
+  if (password == null) {
+    return res.status(400).json({
+      error: "Required field `password` not provided or null",
+    });
+  }
+
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return res.status(400).json({
+      error: "Required field `userId` not provided or null",
+    });
+  }
+
   const salt = bcrypt.genSaltSync(10);
   const hashedPass = bcrypt.hashSync(password, salt);
 
-  // TODO: Admin should not be able to create global admin
-  const role = req.body["role"];
   user
     .update(
       {
         password: hashedPass,
-        active: true,
+        status: userStatus.active,
       },
       {
         where: {
           id: userId,
           password: token,
+          status: userStatus.invited,
         },
       }
     )
     .then((data: any) => {
       if (data[0] == 1) {
-        return res.json({ message: "Successfully Activated Account!" });
+        return res
+          .status(200)
+          .json({ message: "Successfully Activated Account!" });
       } else {
         return res.status(400).json({
           error: "Unable to Activate Account. Have you been invited?",
@@ -115,7 +160,7 @@ export const getUserDetails = (req: Request, res: Response) => {
           id: data.id,
           firstName: data.firstName,
           lastName: data.lastName,
-          active: data.active,
+          status: data.status,
         });
       } else {
         return res
@@ -159,7 +204,7 @@ export const getAllUsers = (req: Request, res: Response) => {
               id: data.id,
               firstName: data.firstName,
               lastName: data.lastName,
-              active: data.active,
+              status: data.status,
             };
           })
         );
@@ -209,9 +254,9 @@ export const updateUser = (req: Request, res: Response) => {
     .catch(() => res.json({ error: "Could not get details for id" }));
 };
 
-const addUser = async (req: Request) => {
+const addUser = async (req: Request, userStatus: userStatus) => {
   const DB: any = db;
-  const { user } = DB;
+  const { user, organization } = DB;
   // TODO: API Validations
   // TODO: email is of email format
   const email = req.body["email"];
@@ -236,18 +281,33 @@ const addUser = async (req: Request) => {
       role: role,
       lastName: lastName,
       password: hashedPass,
-      active: true,
+      status: userStatus,
     })
     .then((data: typeof user) => {
-      return {
-        email: data.email,
-        role: data.role,
-        orgId: data.orgId,
-        id: data.id,
-        password: data.password,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        active: data.active,
-      };
+      return organization
+        .findByPk(orgId)
+        .then((org_data: typeof organization) => {
+          return {
+            user: {
+              email: data.email,
+              role: data.role,
+              orgId: data.orgId,
+              id: data.id,
+              password: data.password,
+              firstName: data.firstName,
+              lastName: data.lastName,
+              status: data.status,
+            },
+            org: {
+              orgId: org_data.id,
+              auth: org_data.auth,
+              orgName: org_data.name,
+              licenses: org_data.licenses,
+              orgHero: org_data.orgHero,
+              active: org_data.active,
+              createdAt: org_data.created_at,
+            },
+          };
+        });
     });
 };

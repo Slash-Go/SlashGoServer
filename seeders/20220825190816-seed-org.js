@@ -8,10 +8,12 @@ module.exports = {
       [
         {
           id: "00000000-0000-0000-0000-000000001337",
-          name: "Default Organization",
-          licenses: 1,
+          name: "Default SlashGo Organization",
+          licenses: 100,
           active: true,
           org_hero: "go",
+          auth: "password",
+          plan_type: "self-hosted",
           created_at: sequelize.fn("NOW"),
           updated_at: sequelize.fn("NOW"),
         },

@@ -32,16 +32,15 @@ module.exports = {
         field: "last_name",
       },
       password: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       role: {
         allowNull: false,
         type: Sequelize.ENUM("global_admin", "admin", "user"),
       },
-      active: {
+      status: {
         allowNull: false,
-        type: Sequelize.BOOLEAN,
+        type: Sequelize.ENUM("invited", "active", "deactivated", "locked"),
       },
       createdAt: {
         allowNull: false,
