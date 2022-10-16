@@ -3,17 +3,32 @@ import { Op } from "sequelize";
 import { v4 as uuidv4 } from "uuid";
 import db from "../models";
 import { getOrgId } from "../utils/apiutils";
+import { linkTypes } from "../utils/defaults";
 
 export const createLink = (req: Request, res: Response) => {
   const DB: any = db;
   const { link } = DB;
 
-  // TODO: API Validations
-  const shortLink = req.body["shortLink"];
-  const fullUrl = req.body["fullUrl"];
-  const description = req.body["description"];
-  const type = req.body["type"];
-  const isPrivate = req.body["private"];
+  const shortLink: string = req.body["shortLink"];
+  const fullUrl: string = req.body["fullUrl"];
+  const description: string = req.body["description"];
+  const type: linkTypes = req.body["type"];
+  const isPrivate: boolean = req.body["private"];
+
+  const requiredFields = ["shortLink", "fullUrl", "type", "private"];
+  for (let i of requiredFields) {
+    if (req.body[i] == null) {
+      return res.status(400).json({
+        error: `Required field \`${req.body[i]}\` not provided or null`,
+      });
+    }
+  }
+
+  if (!Object.values(linkTypes)?.includes(type)) {
+    return res.status(400).json({
+      error: `\`type\` can only be \`static\` or \`dynamic\``,
+    });
+  }
 
   const createdBy = req.auth.userId;
   const orgId = getOrgId(req);
@@ -58,9 +73,13 @@ export const getLinkDetails = (req: Request, res: Response) => {
   const DB: any = db;
   const { link } = DB;
 
-  // TODO: API Validations
-
   const linkId = req.params.linkId;
+  if (linkId == null) {
+    return res.status(400).json({
+      error: "Required param `linkId` not provided or null",
+    });
+  }
+
   const orgId = getOrgId(req);
   link
     .findByPk(linkId)
@@ -86,9 +105,6 @@ export const getLinkDetails = (req: Request, res: Response) => {
 export const getAllLinks = (req: Request, res: Response) => {
   const DB: any = db;
   const { link } = DB;
-
-  // TODO: API Validations
-  //TODO: Error Handling
 
   const orgId = getOrgId(req);
   link
@@ -128,8 +144,13 @@ export const updateLink = (req: Request, res: Response) => {
   const DB: any = db;
   const { link } = DB;
 
-  // TODO: API Validations
   const linkId = req.params.linkId;
+  if (linkId == null) {
+    return res.status(400).json({
+      error: "Required param `linkId` not provided or null",
+    });
+  }
+
   const orgId = getOrgId(req);
   const updateRule = { orgId: orgId, id: linkId };
 
@@ -155,10 +176,13 @@ export const deleteLink = (req: Request, res: Response) => {
   const DB: any = db;
   const { link } = DB;
 
-  // TODO: API Validations
-  //TODO: Error Handling
-  const orgId = getOrgId(req);
   const linkId = req.params.linkId;
+  if (linkId == null) {
+    return res.status(400).json({
+      error: "Required param `linkId` not provided or null",
+    });
+  }
+  const orgId = getOrgId(req);
 
   const deleteRule = { orgId: orgId, id: linkId };
 
