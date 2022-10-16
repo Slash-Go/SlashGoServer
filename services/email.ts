@@ -6,7 +6,7 @@ import path from "path";
 import { getStaticTemplateVars } from "../utils/defaults";
 
 const env = process.env.NODE_ENV || "development";
-const config = require(__dirname + "/../../config/config.json")[env]["email"];
+const config = require(__dirname + "/../config/config.json")[env]["email"];
 
 let transporter: Transporter;
 
