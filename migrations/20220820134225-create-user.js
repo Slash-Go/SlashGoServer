@@ -32,7 +32,6 @@ module.exports = {
         field: "last_name",
       },
       password: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       role: {

@@ -33,6 +33,27 @@ module.exports = {
           type: Sequelize.DATE,
           field: "updated_at",
         },
+        auth: {
+          allowNull: false,
+          type: Sequelize.STRING,
+          defaultValue: "password",
+        },
+        planType: {
+          allowNull: false,
+          type: Sequelize.STRING,
+          field: "plan_type",
+          defaultValue: "self-hosted",
+        },
+        planExpiry: {
+          allowNull: true,
+          type: Sequelize.DATE,
+          field: "plan_expiry",
+        },
+        settings: {
+          allowNull: true,
+          type: Sequelize.JSON,
+          defaultValue: {},
+        },
         orgHero: {
           allowNull: false,
           type: Sequelize.STRING,

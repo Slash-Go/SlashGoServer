@@ -33,6 +33,24 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: true,
       },
+      auth: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "password",
+      },
+      planType: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "self-hosted",
+      },
+      planExpiry: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      settings: {
+        type: DataTypes.JSON,
+        allowNull: true,
+      },
       orgHero: {
         type: DataTypes.STRING,
         allowNull: false,
