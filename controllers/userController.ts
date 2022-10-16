@@ -9,8 +9,8 @@ import { sendMail } from "../services/email";
 
 export const createUser = (req: Request, res: Response) => {
   addUser(req, userStatus.active)
-    .then((data) =>
-      res.status(200).json({
+    .then((data) => {
+      return res.status(200).json({
         email: data.email,
         role: data.role,
         orgId: data.orgId,
@@ -18,40 +18,45 @@ export const createUser = (req: Request, res: Response) => {
         firstName: data.firstName,
         lastName: data.lastName,
         status: data.status,
-      })
-    )
-    .catch(() => res.status(500).json({ error: "Unable to create user" }));
+      });
+    })
+    .catch(() => {
+      return res.status(500).json({ error: "Unable to create user" });
+    });
 };
 
 export const inviteUser = (req: Request, res: Response) => {
   req.body.password = randomUUID();
 
-  addUser(req, userStatus.invited).then((data) => {
-    //TODO: Handle welcome email for SSO and GSuite Auth
-    if (data.org.auth === "password") {
-      sendMail({
-        to: data.user.email,
-        template: "user-invite-email",
-        dynVars: {
-          firstName: data.user.firstName ? data.user.firstName : "",
-          lastName: data.user.lastName ? data.user.lastName : "",
-          userId: data.user.id,
-          orgName: data.org.orgName,
-          activationCode: data.user.password,
-        },
+  addUser(req, userStatus.invited)
+    .then((data) => {
+      //TODO: Handle welcome email for SSO and GSuite Auth
+      if (data.org.auth === "password") {
+        sendMail({
+          to: data.user.email,
+          template: "user-invite-email",
+          dynVars: {
+            firstName: data.user.firstName ? data.user.firstName : "",
+            lastName: data.user.lastName ? data.user.lastName : "",
+            userId: data.user.id,
+            orgName: data.org.orgName,
+            activationCode: data.user.password,
+          },
+        });
+      }
+      return res.status(200).json({
+        email: data.user.email,
+        role: data.user.role,
+        orgId: data.user.orgId,
+        id: data.user.id,
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        status: data.user.status,
       });
-    }
-    return res.status(200).json({
-      email: data.user.email,
-      role: data.user.role,
-      orgId: data.user.orgId,
-      id: data.user.id,
-      firstName: data.user.firstName,
-      lastName: data.user.lastName,
-      status: data.user.status,
+    })
+    .catch(() => {
+      return res.status(500).json({ error: "Unable to create user" });
     });
-  });
-  //.catch(() => res.status(500).json({ error: "Unable to create user" }));
 };
 
 export const acceptInvite = (req: Request, res: Response) => {
@@ -99,6 +104,7 @@ export const acceptInvite = (req: Request, res: Response) => {
         where: {
           id: userId,
           password: token,
+          status: userStatus.invited,
         },
       }
     )
