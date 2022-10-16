@@ -3,6 +3,7 @@ import nodemailer, { Transporter } from "nodemailer";
 import ejs from "ejs";
 import fs from "fs";
 import path from "path";
+import { getStaticTemplateVars } from "../utils/defaults";
 
 const env = process.env.NODE_ENV || "development";
 const config = require(__dirname + "/../../config/config.json")[env]["email"];
@@ -29,6 +30,9 @@ export const sendMail = (options: EmailOptions) => {
     initializeTransporter();
   }
 
+  const staticVars = getStaticTemplateVars();
+  const variables = { ...staticVars, ...options.dynVars };
+
   fs.readFile(
     path.join(__dirname, "..", "templates", `${options.template}.json`),
     (err: NodeJS.ErrnoException | null, data: Buffer) => {
@@ -48,12 +52,12 @@ export const sendMail = (options: EmailOptions) => {
               : config.defaultFrom.address,
           },
           to: options.to,
-          subject: ejs.render(jsonData.subject, options.dynVars),
+          subject: ejs.render(jsonData.subject, variables),
           replyTo: options.from?.replyTo
             ? options.from?.replyTo
             : config.defaultFrom.replyTo,
-          text: ejs.render(jsonData.plaintext, options.dynVars),
-          html: ejs.render(jsonData.html, options.dynVars),
+          text: ejs.render(jsonData.plaintext, variables),
+          html: ejs.render(jsonData.html, variables),
         })
         .then((info) => {
           console.log("Email sent: %s", info.messageId);
