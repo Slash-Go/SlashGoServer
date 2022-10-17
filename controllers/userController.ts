@@ -1,11 +1,16 @@
 import { Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4, validate as isValidUUID } from "uuid";
 import bcrypt from "bcrypt";
 import db from "../models";
 import { getOrgId } from "../utils/apiutils";
 import { ValidationError } from "../utils/ValidationError";
 import { randomUUID } from "crypto";
-import { MIN_PASSWORD_LENGTH, userRoles, userStatus } from "../utils/defaults";
+import {
+  emailRegex,
+  MIN_PASSWORD_LENGTH,
+  userRoles,
+  userStatus,
+} from "../utils/defaults";
 import { sendMail } from "../services/email";
 
 export const createUser = (req: Request, res: Response) => {
@@ -84,6 +89,12 @@ export const acceptInvite = (req: Request, res: Response) => {
     });
   }
 
+  if (!isValidUUID(userId)) {
+    return res.status(400).json({
+      error: "Invalid value provided for `userId`",
+    });
+  }
+
   if (token == null) {
     return res.status(400).json({
       error: "Required field `token` not provided or null",
@@ -143,6 +154,12 @@ export const getUserDetails = (req: Request, res: Response) => {
   if (userId == null) {
     return res.status(400).json({
       error: "Required field `userId` not provided or null",
+    });
+  }
+
+  if (!isValidUUID(userId)) {
+    return res.status(400).json({
+      error: "Invalid value provided for `userId`",
     });
   }
 
@@ -240,6 +257,10 @@ export const updateUser = (req: Request, res: Response) => {
     throw new ValidationError("Required field `userId` not provided or null");
   }
 
+  if (!isValidUUID(userId)) {
+    throw new ValidationError("Invalid value provided for `userId`");
+  }
+
   if (req.body.hasOwnProperty("password")) {
     if (
       req.body["password"] == null ||
@@ -313,7 +334,6 @@ const addUser = async (req: Request, status: userStatus) => {
     );
   }
 
-  const emailRegex = /^\S+@\S+\.\S+$/;
   if (email.match(emailRegex) == null) {
     throw new ValidationError("`email` provided is of invalid format");
   }

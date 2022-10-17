@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Op } from "sequelize";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4, validate as isValidUUID } from "uuid";
 import db from "../models";
 import { getOrgId } from "../utils/apiutils";
 import { linkTypes } from "../utils/defaults";
@@ -79,6 +79,11 @@ export const getLinkDetails = (req: Request, res: Response) => {
       error: "Required param `linkId` not provided or null",
     });
   }
+  if (!isValidUUID(linkId)) {
+    return res.status(400).json({
+      error: "Invalid value provided for `linkId`",
+    });
+  }
 
   const orgId = getOrgId(req);
   link
@@ -150,6 +155,11 @@ export const updateLink = (req: Request, res: Response) => {
       error: "Required param `linkId` not provided or null",
     });
   }
+  if (!isValidUUID(linkId)) {
+    return res.status(400).json({
+      error: "Invalid value provided for `linkId`",
+    });
+  }
 
   const orgId = getOrgId(req);
   const updateRule = { orgId: orgId, id: linkId };
@@ -158,6 +168,27 @@ export const updateLink = (req: Request, res: Response) => {
   if (req.auth.userRole !== "admin" && req.auth.userRole !== "global_admin") {
     Object.assign(updateRule, { createdBy: req.auth.userId });
   }
+
+  const allowedFields = [
+    "description",
+    "shortLink",
+    "fullUrl",
+    "type",
+    "private",
+  ];
+  const invalidFields = [];
+  for (let i of Object.keys(req.body)) {
+    if (allowedFields.indexOf(i) === -1) {
+      invalidFields.push(i);
+    }
+  }
+
+  if (invalidFields.length > 0) {
+    return res.status(400).json({
+      error: `Invalid fields provided for update operation \`${invalidFields}\``,
+    });
+  }
+
   link
     .update(req.body, {
       where: updateRule,
@@ -192,8 +223,13 @@ export const deleteLink = (req: Request, res: Response) => {
       error: "Required param `linkId` not provided or null",
     });
   }
-  const orgId = getOrgId(req);
+  if (!isValidUUID(linkId)) {
+    return res.status(400).json({
+      error: "Invalid value provided for `linkId`",
+    });
+  }
 
+  const orgId = getOrgId(req);
   const deleteRule = { orgId: orgId, id: linkId };
 
   // non admins can only delete links they created
@@ -206,7 +242,7 @@ export const deleteLink = (req: Request, res: Response) => {
       where: deleteRule,
     })
     .then((data: any) => {
-      if (data == 1) {
+      if (data[0] == 1) {
         return res.status(200).json({ status: `OK` });
       } else {
         return res
@@ -214,7 +250,7 @@ export const deleteLink = (req: Request, res: Response) => {
           .json({ error: `Unable to delete shortlink. Contact your admin/s.` });
       }
     })
-    .catch(() =>
-      res.status(500).json({ error: `Error when deleting shortlink` })
-    );
+    .catch(() => {
+      return res.status(500).json({ error: `Error when deleting shortlink` });
+    });
 };
