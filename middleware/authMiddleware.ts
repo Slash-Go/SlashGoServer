@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import db, { sequelize } from "../models";
 import Sequelize, { Op } from "sequelize";
 import crypto from "crypto";
+import { userRoles } from "../utils/defaults";
 
 const BEARER = "Bearer ";
 
@@ -130,7 +131,10 @@ export const adminsOnly = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.auth.userRole === "admin" || req.auth.userRole === "global_admin") {
+  if (
+    req.auth.userRole === userRoles.admin ||
+    req.auth.userRole === userRoles.global_admin
+  ) {
     next();
   } else {
     return res
@@ -144,7 +148,7 @@ export const globalAdminsOnly = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.auth.userRole === "global_admin") {
+  if (req.auth.userRole === userRoles.global_admin) {
     next();
   } else {
     return res
