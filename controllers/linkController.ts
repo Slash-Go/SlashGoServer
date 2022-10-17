@@ -19,7 +19,7 @@ export const createLink = (req: Request, res: Response) => {
   for (let i of requiredFields) {
     if (req.body[i] == null) {
       return res.status(400).json({
-        error: `Required field \`${req.body[i]}\` not provided or null`,
+        error: `Required field \`${i}\` not provided or null`,
       });
     }
   }
