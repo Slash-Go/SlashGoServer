@@ -161,12 +161,22 @@ export const updateLink = (req: Request, res: Response) => {
   link
     .update(req.body, {
       where: updateRule,
+      returning: true,
     })
     .then((data: any) => {
-      if (data) {
-        res.send(data);
+      if (data[0] == 1) {
+        return res.send({
+          id: data[1][0].dataValues.id,
+          orgId: data[1][0].dataValues.orgId,
+          shortLink: data[1][0].dataValues.shortLink,
+          fullUrl: data[1][0].dataValues.fullUrl,
+          description: data[1][0].dataValues.description,
+          private: data[1][0].dataValues.private,
+          type: data[1][0].dataValues.type,
+          createdBy: data[1][0].dataValues.createdBy,
+        });
       } else {
-        res.status(404).json({ error: "Link with this id not found!" });
+        return res.status(404).json({ error: "Link with this id not found!" });
       }
     })
     .catch(() => res.json({ error: "Could not get details for id" }));

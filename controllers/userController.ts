@@ -282,10 +282,19 @@ export const updateUser = (req: Request, res: Response) => {
   user
     .update(req.body, {
       where: updateRule,
+      returning: true,
     })
     .then((data: any) => {
       if (data[0] == 1) {
-        res.status(200).send(data);
+        res.status(200).json({
+          email: data[1][0].dataValues.email,
+          role: data[1][0].dataValues.role,
+          orgId: data[1][0].dataValues.orgId,
+          id: data[1][0].dataValues.id,
+          firstName: data[1][0].dataValues.firstName,
+          lastName: data[1][0].dataValues.lastName,
+          status: data[1][0].dataValues.status,
+        });
       } else {
         res.status(404).json({ error: "User with this id not found!" });
       }
