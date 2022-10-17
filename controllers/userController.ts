@@ -3,8 +3,9 @@ import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import db from "../models";
 import { getOrgId } from "../utils/apiutils";
+import { ValidationError } from "../utils/ValidationError";
 import { randomUUID } from "crypto";
-import { MIN_PASSWORD_LENGTH, userStatus } from "../utils/defaults";
+import { MIN_PASSWORD_LENGTH, userRoles, userStatus } from "../utils/defaults";
 import { sendMail } from "../services/email";
 
 export const createUser = (req: Request, res: Response) => {
@@ -22,8 +23,11 @@ export const createUser = (req: Request, res: Response) => {
         updatedAt: data.updatedAt,
       });
     })
-    .catch(() => {
-      return res.status(500).json({ error: "Unable to create user" });
+    .catch((e) => {
+      if (e instanceof ValidationError) {
+        return res.status(400).json({ error: e.message });
+      }
+      return res.status(500).json({ error: "Could not create user" });
     });
 };
 
@@ -58,15 +62,18 @@ export const inviteUser = (req: Request, res: Response) => {
         updatedAt: data.user.updatedAt,
       });
     })
-    .catch(() => {
-      return res.status(500).json({ error: "Unable to create user" });
+    .catch((e) => {
+      if (e instanceof ValidationError) {
+        return res.status(400).json({ error: e.message });
+      }
+      return res.status(500).json({ error: "Could not create user" });
     });
 };
 
 export const acceptInvite = (req: Request, res: Response) => {
   const DB: any = db;
   const { user } = DB;
-  //TODO: Add Validations
+
   const userId = req.body["userId"];
   const password = req.body["password"];
   const token = req.body["token"];
@@ -91,7 +98,7 @@ export const acceptInvite = (req: Request, res: Response) => {
 
   if (password.length < MIN_PASSWORD_LENGTH) {
     return res.status(400).json({
-      error: "Required field `userId` not provided or null",
+      error: `\'password\' length is less than ${MIN_PASSWORD_LENGTH}`,
     });
   }
 
@@ -132,8 +139,13 @@ export const getUserDetails = (req: Request, res: Response) => {
   const DB: any = db;
   const { user, organization } = DB;
 
-  // TODO: API Validations
   const userId = req.params.userId;
+  if (userId == null) {
+    return res.status(400).json({
+      error: "Required field `userId` not provided or null",
+    });
+  }
+
   const orgId = getOrgId(req);
   user
     .findOne({
@@ -165,7 +177,7 @@ export const getUserDetails = (req: Request, res: Response) => {
       } else {
         return res
           .status(404)
-          .json({ error: "Could not fine user with that id" });
+          .json({ error: "Could not find user with that id" });
       }
     })
     .catch(() =>
@@ -223,16 +235,43 @@ export const updateUser = (req: Request, res: Response) => {
   const DB: any = db;
   const { user } = DB;
 
-  // TODO: API Validations
-  // TODO: Handle password update and active update
   const userId = req.params.userId;
+  if (userId == null) {
+    throw new ValidationError("Required field `userId` not provided or null");
+  }
+
+  if (req.body.hasOwnProperty("password")) {
+    if (
+      req.body["password"] == null ||
+      req.body["password"].length < MIN_PASSWORD_LENGTH
+    ) {
+      throw new ValidationError(
+        `Field \`password\` must have length >= ${MIN_PASSWORD_LENGTH} characters`
+      );
+    }
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPass = bcrypt.hashSync(req.body["password"], salt);
+    req.body["password"] = hashedPass;
+  }
+
+  if (req.body.hasOwnProperty("status")) {
+    if (
+      req.body["status"] == null ||
+      !Object.values(userStatus)?.includes(req.body["status"])
+    ) {
+      throw new ValidationError(
+        `Field \`status\` has an invalid value provided`
+      );
+    }
+  }
+
   const orgId = getOrgId(req);
   const updateRule = { orgId: orgId, id: userId };
 
   // non admins can only update links they created
   if (
-    req.auth.userRole !== "admin" &&
-    req.auth.userRole !== "global_admin" &&
+    req.auth.userRole !== userRoles.admin &&
+    req.auth.userRole !== userRoles.global_admin &&
     req.auth.userId !== userId
   ) {
     return res
@@ -245,7 +284,7 @@ export const updateUser = (req: Request, res: Response) => {
       where: updateRule,
     })
     .then((data: any) => {
-      if (data) {
+      if (data[0] == 1) {
         res.status(200).send(data);
       } else {
         res.status(404).json({ error: "User with this id not found!" });
@@ -254,24 +293,61 @@ export const updateUser = (req: Request, res: Response) => {
     .catch(() => res.json({ error: "Could not get details for id" }));
 };
 
-const addUser = async (req: Request, userStatus: userStatus) => {
+const addUser = async (req: Request, status: userStatus) => {
   const DB: any = db;
   const { user, organization } = DB;
-  // TODO: API Validations
-  // TODO: email is of email format
+
   const email = req.body["email"];
+  if (email == null) {
+    throw new ValidationError(
+      "`Required field `email` is not provided or null"
+    );
+  }
+
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  if (email.match(emailRegex) == null) {
+    throw new ValidationError("`email` provided is of invalid format");
+  }
   const firstName = req.body["firstName"];
   const lastName = req.body["lastName"];
 
   const password = req.body["password"];
+  if (
+    (password == null || password.length < 6) &&
+    status == userStatus.active
+  ) {
+    throw new ValidationError(
+      `Required field \`password\` must have length >= ${MIN_PASSWORD_LENGTH} characters`
+    );
+  }
+
   // TODO: Make this async
   const salt = bcrypt.genSaltSync(10);
   const hashedPass = bcrypt.hashSync(password, salt);
 
   const orgId = getOrgId(req);
 
-  // TODO: Admin should not be able to create global admin
   const role = req.body["role"];
+  if (role == null) {
+    throw new ValidationError("Required field `role` not provided or null");
+  }
+
+  if (!Object.values(userRoles)?.includes(role)) {
+    throw new ValidationError(
+      "Unknown value provided for required field `role`"
+    );
+  }
+
+  if (role) {
+    throw new ValidationError("Required field `userId` not provided or null");
+  }
+
+  if (req.auth.userRole == userRoles.admin && role === userRoles.global_admin) {
+    throw new ValidationError(
+      "admin cannot create user with role global_admin"
+    );
+  }
+
   return await user
     .create({
       id: uuidv4(),
@@ -281,7 +357,7 @@ const addUser = async (req: Request, userStatus: userStatus) => {
       role: role,
       lastName: lastName,
       password: hashedPass,
-      status: userStatus,
+      status: status,
     })
     .then((data: typeof user) => {
       return organization
