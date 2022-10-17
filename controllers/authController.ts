@@ -176,6 +176,14 @@ export const resetPasswordRequest = (req: Request, res: Response) => {
             createdAt: sequelize.fn("NOW"),
           })
           .then((otp_data: typeof otp) => {
+            sendMail({
+              to: email,
+              template: "password-reset-email",
+              dynVars: {
+                token: otp_data.token,
+                userId: data.id,
+              },
+            });
           })
           .catch((e: any) => {
             console.log("Error in creating OTP: ", e);
