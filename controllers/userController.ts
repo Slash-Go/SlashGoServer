@@ -17,15 +17,15 @@ export const createUser = (req: Request, res: Response) => {
   addUser(req, userStatus.active)
     .then((data) => {
       return res.status(200).json({
-        email: data.email,
-        role: data.role,
-        orgId: data.orgId,
-        id: data.id,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        status: data.status,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
+        email: data.user.email,
+        role: data.user.role,
+        orgId: data.org.orgId,
+        id: data.user.id,
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        status: data.user.status,
+        createdAt: data.user.createdAt,
+        updatedAt: data.user.updatedAt,
       });
     })
     .catch((e) => {
@@ -367,8 +367,8 @@ const addUser = async (req: Request, status: userStatus) => {
     );
   }
 
-  if (role) {
-    throw new ValidationError("Required field `userId` not provided or null");
+  if (role == null) {
+    throw new ValidationError("Required field `role` not provided or null");
   }
 
   if (req.auth.userRole == userRoles.admin && role === userRoles.global_admin) {
@@ -402,6 +402,8 @@ const addUser = async (req: Request, status: userStatus) => {
               firstName: data.firstName,
               lastName: data.lastName,
               status: data.status,
+              createdAt: data.created_at,
+              updatedAt: data.updated_at,
             },
             org: {
               orgId: org_data.id,
