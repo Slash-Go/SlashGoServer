@@ -32,6 +32,16 @@ export const createUser = (req: Request, res: Response) => {
       if (e instanceof ValidationError) {
         return res.status(400).json({ error: e.message });
       }
+      if (
+        e.errors &&
+        e.errors.length > 0 &&
+        e.errors[0].validatorKey === "not_unique"
+      ) {
+        return res.status(400).json({
+          error:
+            "User with this `email` is already active. Cannot reuse email again.",
+        });
+      }
       return res.status(500).json({ error: "Could not create user" });
     });
 };
@@ -141,7 +151,17 @@ export const acceptInvite = (req: Request, res: Response) => {
         });
       }
     })
-    .catch(() => {
+    .catch((e: any) => {
+      if (
+        e.errors &&
+        e.errors.length > 0 &&
+        e.errors[0].validatorKey === "not_unique"
+      ) {
+        return res.status(400).json({
+          error:
+            "User with this `email` is already active. Cannot reuse email again.",
+        });
+      }
       return res.status(500).json({ error: "Error in Activating user" });
     });
 };
@@ -373,7 +393,7 @@ const addUser = async (req: Request, status: userStatus) => {
 
   if (req.auth.userRole == userRoles.admin && role === userRoles.global_admin) {
     throw new ValidationError(
-      "admin cannot create user with role global_admin"
+      "`admin` cannot create user with role `global_admin`"
     );
   }
 

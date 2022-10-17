@@ -164,6 +164,9 @@
           .then(({ status, body }) => {
             if (status === 200) {
               document.getElementById("success").classList.remove("hidden");
+            } else if (status === 400) {
+              document.getElementById("error").innerHTML = body.error;
+              document.getElementById("error").classList.remove("hidden");
             } else {
               document.getElementById("error").classList.remove("hidden");
             }
@@ -187,7 +190,10 @@
           },
           body: JSON.stringify(data),
         });
-        return { status: response.status, body: response.json() };
+
+        return response.json().then((data) => {
+          return { status: response.status, body: data };
+        });
       }
     </script>
   </body>
