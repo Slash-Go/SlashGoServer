@@ -29,7 +29,7 @@ $ vim config/config.json
 
 // Run migrations
 $ npx sequelize-cli db:migrate
-$ npx sequelize-cli db:seed:all
+$ ROOT_EMAIL=root@slashgo.link ROOT_PASSWORD=admin npx sequelize-cli db:seed:all
 
 // Run Dev Server
 $ npm run dev
