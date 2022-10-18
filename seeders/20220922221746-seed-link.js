@@ -7,8 +7,8 @@ module.exports = {
       "links",
       [
         {
-          id: "00000000-1337-0000-0000-000000000000",
-          org_id: "00000000-0000-0000-0000-000000001337",
+          id: "10000000-0001-3370-0000-000000000001",
+          org_id: "10000000-0001-3370-0000-000000000000",
           short_link: "code",
           full_url: "https://github.com/Slash-Go",
           description: "Github Repo for Slash/Go 🎉",

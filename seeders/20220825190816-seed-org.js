@@ -7,7 +7,7 @@ module.exports = {
       "organizations",
       [
         {
-          id: "00000000-0000-0000-0000-000000001337",
+          id: "10000000-0001-3370-0000-000000000000",
           name: "Default SlashGo Organization",
           licenses: 100,
           active: true,
