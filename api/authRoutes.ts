@@ -1,6 +1,7 @@
 import express from "express";
 import {
   login,
+  loginGoogle,
   refreshToken,
   resetPassword,
   resetPasswordRequest,
@@ -9,6 +10,7 @@ import {
 export const router = express.Router();
 
 router.post("/login", login);
+router.post("/login_google", loginGoogle);
 router.post("/refresh", refreshToken);
 router.post("/reset_password_request", resetPasswordRequest);
 router.post("/reset_password", resetPassword);

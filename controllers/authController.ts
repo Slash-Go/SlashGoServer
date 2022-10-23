@@ -6,6 +6,13 @@ import { generateTokenPair } from "../middleware/authMiddleware";
 import { Op } from "sequelize";
 import { MIN_PASSWORD_LENGTH, userStatus } from "../utils/defaults";
 import { sendMail } from "../services/email";
+import { OAuth2Client } from "google-auth-library";
+const env = process.env.NODE_ENV || "development";
+const config = require(__dirname + "/../config/config.json")[env][
+  "social_login"
+];
+
+const client = new OAuth2Client(config["google_client_id"]);
 
 export const login = (req: Request, res: Response) => {
   const DB: any = db;
@@ -73,6 +80,76 @@ export const login = (req: Request, res: Response) => {
           return res.status(401).json({ error: "Unable to authenticate user" });
         }
       });
+    });
+};
+
+export const loginGoogle = (req: Request, res: Response) => {
+  const DB: any = db;
+  const { user, organization } = DB;
+
+  const token = req.body["token"];
+  if (token == null) {
+    return res
+      .status(401)
+      .json({ error: "Required parameter `token` not provided or null" });
+  }
+
+  return client
+    .verifyIdToken({
+      idToken: token,
+      audience: config["google_client_id"],
+    })
+    .then((ticket) => {
+      const payload = ticket.getPayload();
+      console.log(payload);
+      if (payload == null) {
+        return res
+          .status(401)
+          .json({ error: "Error in authenticating payload" });
+      }
+
+      user
+        .findOne({
+          attributes: ["id", "email", "role", "orgId", "organization.org_hero"],
+          where: {
+            email: payload?.email,
+            status: userStatus.active,
+          },
+          include: [
+            {
+              model: organization,
+              where: {
+                active: true,
+              },
+              required: true,
+            },
+          ],
+        })
+        .then((data: typeof user) => {
+          if (data === null) {
+            return res
+              .status(401)
+              .json({ error: "User not found or not active!" });
+          }
+
+          generateTokenPair(data.id)
+            .then((tokenResponse: any) => {
+              // Add orgHero in token refresh response
+              tokenResponse["orgHero"] = data.organization.orgHero;
+              tokenResponse["role"] = data.role;
+              return res.json(tokenResponse);
+            })
+            .catch((err: any) => {
+              return res
+                .status(401)
+                .json({ error: "Error in Generating Tokens" });
+            });
+        });
+    })
+    .catch((e) => {
+      return res
+        .status(401)
+        .json({ error: `Invalid token provided. Unable to validate` });
     });
 };
 

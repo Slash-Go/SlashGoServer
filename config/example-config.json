@@ -3,6 +3,9 @@
     "general": {
       "baseUrl": "http://localhost:3000"
     },
+    "social_login": {
+      "google_client_id": "GOOGLE_AUTH_CLIENT_ID"
+    },
     "data": {
       "username": "root",
       "password": null,
@@ -29,6 +32,9 @@
     "general": {
       "baseUrl": "http://localhost:3000"
     },
+    "social_login": {
+      "google_client_id": "GOOGLE_AUTH_CLIENT_ID"
+    },
     "data": {
       "username": "root",
       "password": null,
@@ -54,6 +60,9 @@
   "production": {
     "general": {
       "baseUrl": "https://slashgo.link"
+    },
+    "social_login": {
+      "google_client_id": "GOOGLE_AUTH_CLIENT_ID"
     },
     "data": {
       "username": "root",
