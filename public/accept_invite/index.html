@@ -67,13 +67,19 @@
                   Set Password
                 </button>
               </div>
+              <div
+                class="text-xs underline hover:cursor-pointer"
+                onclick="acceptLoginSocial()"
+              >
+                Click here if you prefer to use Sign in with Google
+              </div>
             </form>
           </div>
           <div
             id="success"
             class="hidden text-green-600 font-bold text-xs text-center"
           >
-            Success! You have set your password successfully!<br />
+            Your account has been activated successfully!<br />
             Download SlashGo and login to your account now!
           </div>
           <div
@@ -160,7 +166,18 @@
       signupForm.addEventListener("submit", (event) => {
         event.preventDefault();
         let password = document.getElementById("password").value;
-        postData("/user/accept_invite", { password, token, userId })
+        acceptInvite(false, password);
+      });
+
+      const acceptLoginSocial = () => {
+        acceptInvite(true, null);
+      };
+
+      const acceptInvite = (socialLogin, password) => {
+        const payload = socialLogin
+          ? { socialLogin: true, token, userId }
+          : { password, token, userId };
+        postData("/user/accept_invite", payload)
           .then(({ status, body }) => {
             if (status === 200) {
               document.getElementById("success").classList.remove("hidden");
@@ -177,7 +194,7 @@
             document.getElementById("error").classList.remove("hidden");
             document.getElementById("submit").disabled = true;
           });
-      });
+      };
 
       async function postData(url = "", data = {}) {
         const response = await fetch(url, {

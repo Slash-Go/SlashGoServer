@@ -91,6 +91,7 @@ export const acceptInvite = (req: Request, res: Response) => {
 
   const userId = req.body["userId"];
   const password = req.body["password"];
+  const socialLogin = req.body["socialLogin"] ? req.body["socialLogin"] : false;
   const token = req.body["token"];
 
   if (userId == null) {
@@ -111,35 +112,35 @@ export const acceptInvite = (req: Request, res: Response) => {
     });
   }
 
-  if (password == null) {
-    return res.status(400).json({
-      error: "Required field `password` not provided or null",
-    });
+  const activatePayload: any = {
+    status: userStatus.active,
+  };
+
+  if (!socialLogin) {
+    if (password == null) {
+      return res.status(400).json({
+        error: "Required field `password` not provided or null",
+      });
+    }
+
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      return res.status(400).json({
+        error: `\'password\' length is less than ${MIN_PASSWORD_LENGTH}`,
+      });
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPass = bcrypt.hashSync(password, salt);
+    activatePayload.password = hashedPass;
   }
-
-  if (password.length < MIN_PASSWORD_LENGTH) {
-    return res.status(400).json({
-      error: `\'password\' length is less than ${MIN_PASSWORD_LENGTH}`,
-    });
-  }
-
-  const salt = bcrypt.genSaltSync(10);
-  const hashedPass = bcrypt.hashSync(password, salt);
-
   user
-    .update(
-      {
-        password: hashedPass,
-        status: userStatus.active,
+    .update(activatePayload, {
+      where: {
+        id: userId,
+        password: token,
+        status: userStatus.invited,
       },
-      {
-        where: {
-          id: userId,
-          password: token,
-          status: userStatus.invited,
-        },
-      }
-    )
+    })
     .then((data: any) => {
       if (data[0] == 1) {
         return res
