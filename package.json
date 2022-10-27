@@ -9,6 +9,8 @@
     "start": "node dist/server.js",
     "predev": "mkdir -p dist/templates && cp -r templates/* dist/templates/ && mkdir -p dist/config && cp -r config/* dist/config/",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/server.js\"",
+    "migrate:up": "npx sequelize-cli db:migrate",
+    "migrate:undo": "npx sequelize-cli db:migrate:undo:all",
     "pretest": "mkdir -p dist/config && cp -r config/* dist/config/",
     "test": "jest --testTimeout=5000"
   },
