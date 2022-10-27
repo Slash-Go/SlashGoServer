@@ -48,6 +48,7 @@ export const createLink = (req: Request, res: Response) => {
     .then((data: typeof link) => {
       return res.status(200).json({
         id: data.id,
+        orgId: data.orgId,
         shortLink: data.shortLink,
         description: data.description,
         type: data.type,
