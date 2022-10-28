@@ -22,5 +22,5 @@ app.use("/auth", authRoutes);
 app.use("/health", healthRoutes);
 
 app.use((_req: Request, res: Response) => {
-  return res.status(404);
+  res.status(404).json({status: "404"});
 });
