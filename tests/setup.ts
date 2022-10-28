@@ -87,7 +87,7 @@ module.exports = async function (
   });
 
   await link.create({
-    id: "91000000-0001-3370-0000-000000000001",
+    id: "91000000-0001-3370-a000-000000000001",
     orgId: "10000000-0001-3370-0000-000000000001",
     shortLink: "publico1admin",
     fullUrl: "https://o1admin.com",
@@ -99,7 +99,7 @@ module.exports = async function (
   });
 
   await link.create({
-    id: "92000000-0001-3370-0000-000000000001",
+    id: "92000000-0001-3370-a000-000000000001",
     orgId: "10000000-0001-3370-0000-000000000001",
     shortLink: "privateo1admin",
     fullUrl: "https://2.o1admin.com",
@@ -111,7 +111,7 @@ module.exports = async function (
   });
 
   await link.create({
-    id: "93000000-0001-3370-0000-000000000001",
+    id: "93000000-0001-3370-a000-000000000001",
     orgId: "10000000-0001-3370-0000-000000000001",
     shortLink: "privateo1u1",
     fullUrl: "https://o1user1.com",
