@@ -11,6 +11,7 @@
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/server.js\"",
     "migrate:up": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo:all",
+    "seed:all": "npx sequelize-cli db:seed:all",
     "pretest": "mkdir -p dist/config && cp -r config/* dist/config/",
     "test": "jest --testTimeout=5000"
   },
