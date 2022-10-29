@@ -1,4 +1,6 @@
+import request from "supertest";
 import { Request, Response, NextFunction } from "express";
+import { app } from "../index";
 import { Auth } from "../middleware/authMiddleware";
 
 jest.mock('../middleware/authMiddleware', () => {
@@ -58,6 +60,16 @@ jest.mock('../middleware/authMiddleware', () => {
       }
     },
   })
+});
+
+describe("GET /link", () => {
+  it("should return 200 OK and one link of global org for Global Admin", async () => {
+    const res = await request(app).get("/link").set('Authorization', 'Bearer GLOBAL_ADMIN_TOKEN');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.length).toBe(1);
+    expect(res.body[0].shortLink).toBe("code");
+  });
+
 });
 
 export {};
