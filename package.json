@@ -12,8 +12,9 @@
     "migrate:up": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo:all",
     "seed:all": "npx sequelize-cli db:seed:all",
-    "pretest": "mkdir -p dist/config && cp -r config/* dist/config/",
-    "test": "jest --testTimeout=5000"
+    "pretest": "mkdir -p dist/config && cp -r config/* dist/config/ && NODE_ENV=test npm run migrate:undo && NODE_ENV=test npm run migrate:up && NODE_ENV=test npm run seed:all",
+    "test": "jest --testTimeout=5000",
+    "posttest": "NODE_ENV=test npm run migrate:undo"
   },
   "repository": {
     "type": "git",
