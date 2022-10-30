@@ -87,12 +87,20 @@ export const getLinkDetails = (req: Request, res: Response) => {
 
   const orgId = getOrgId(req);
   link
-    .findByPk(linkId)
+    .findOne({
+      where: {
+        id: linkId,
+        [Op.or]: [
+            { orgId: orgId, private: false },
+            { orgId: orgId, private: true, createdBy: req.auth.userId },
+        ],
+      }
+    })
     .then((data: typeof link) => {
       if (data) {
-        res.json({
+        return res.json({
           id: data.id,
-          orgId: orgId,
+          orgId: data.orgId,
           shortLink: data.shortLink,
           fullUrl: data.fullUrl,
           description: data.description,
@@ -104,7 +112,7 @@ export const getLinkDetails = (req: Request, res: Response) => {
         res.status(404).json({ error: "Link with this id not found!" });
       }
     })
-    .catch(() => res.json({ error: "Could not get details for id" }));
+    .catch(() => res.status(500).json({ error: "Could not get details for id" }));
 };
 
 export const getAllLinks = (req: Request, res: Response) => {
