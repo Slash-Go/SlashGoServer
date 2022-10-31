@@ -36,8 +36,8 @@
       "google_client_id": "GOOGLE_AUTH_CLIENT_ID"
     },
     "data": {
-      "username": "root",
-      "password": null,
+      "username": "postgres",
+      "password": "root",
       "database": "database_test",
       "host": "127.0.0.1",
       "dialect": "postgres",
