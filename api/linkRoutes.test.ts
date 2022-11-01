@@ -288,6 +288,214 @@ describe("GET public link", () => {
     expect(res.body.shortLink).toBe("publico1admin");
   });
 });
+
+describe("Create public link", () => {
+  it("Create Link API Validations", async () => {
+    const res = await request(app)
+      .post("/link")
+      .send({ shortLink: "pubtest" })
+      .set("Authorization", "Bearer ORG2_USER1_TOKEN");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe(
+      "Required field `fullUrl` not provided or null"
+    );
+
+    const res2 = await request(app)
+      .post("/link")
+      .send({ fullUrl: "https://pubtest.com" })
+      .set("Authorization", "Bearer ORG2_USER1_TOKEN");
+    expect(res2.statusCode).toBe(400);
+    expect(res2.body.error).toBe(
+      "Required field `shortLink` not provided or null"
+    );
+
+    const res3 = await request(app)
+      .post("/link")
+      .send({ fullUrl: "https://pubtest.com", shortLink: "pubtest" })
+      .set("Authorization", "Bearer ORG2_USER1_TOKEN");
+    expect(res3.statusCode).toBe(400);
+    expect(res3.body.error).toBe("Required field `type` not provided or null");
+
+    const res4 = await request(app)
+      .post("/link")
+      .send({
+        fullUrl: "https://pubtest.com",
+        shortLink: "pubtest",
+        type: "static",
+      })
+      .set("Authorization", "Bearer ORG2_USER1_TOKEN");
+    expect(res4.statusCode).toBe(400);
+    expect(res4.body.error).toBe(
+      "Required field `private` not provided or null"
+    );
+
+    const res5 = await request(app)
+      .post("/link")
+      .send({
+        fullUrl: "https://pubtest.com",
+        shortLink: "pubtest",
+        private: false,
+        type: "",
+      })
+      .set("Authorization", "Bearer ORG2_USER1_TOKEN");
+    expect(res5.statusCode).toBe(400);
+    expect(res5.body.error).toBe("`type` can only be `static` or `dynamic`");
+  });
+
+  it("Create Public link in Global Admin Org", async () => {
+    const res = await request(app)
+      .post("/link")
+      .send({
+        fullUrl: "https://pubtest.com",
+        shortLink: "gapubtest",
+        private: false,
+        type: "static",
+      })
+      .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(200);
+    expect(res.body.shortLink).toBe("gapubtest");
+    const linkId = res.body.id;
+
+    //Ensure only Global Admin User has access to this link
+    const res2 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
+    expect(res2.statusCode).toBe(200);
+
+    const res3 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+    expect(res3.statusCode).toBe(404);
+
+    const res4 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res4.statusCode).toBe(404);
+
+    const res5 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG2_USER1_TOKEN");
+    expect(res5.statusCode).toBe(404);
+  });
+
+  it("Global Admin Create Public link in Another Org", async () => {
+    const res = await request(app)
+      .post("/link")
+      .send({
+        fullUrl: "https://pubtest.com",
+        shortLink: "gapubtest",
+        private: false,
+        type: "static",
+        orgId: "10000000-0001-3370-0000-000000000001",
+      })
+      .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(200);
+    expect(res.body.shortLink).toBe("gapubtest");
+    const linkId = res.body.id;
+
+    //Ensure only Org1 Users have access to this link
+    const res2 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
+    expect(res2.statusCode).toBe(404);
+
+    const res3 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+    expect(res3.statusCode).toBe(200);
+
+    const res4 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res4.statusCode).toBe(200);
+
+    const res5 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG2_USER1_TOKEN");
+    expect(res5.statusCode).toBe(404);
+  });
+
+  it("Create Public link in Another Org As Non-Global Admin", async () => {
+    const res = await request(app)
+      .post("/link")
+      .send({
+        fullUrl: "https://pubtest.com",
+        shortLink: "gapubtest2",
+        private: false,
+        type: "static",
+        orgId: "10000000-0001-3370-0000-000000000002",
+      })
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(200);
+    // Ensure orgId is Org1 Id, not Org2 Id
+    expect(res.body.orgId).toBe("10000000-0001-3370-0000-000000000001");
+    const linkId = res.body.id;
+
+    //Ensure only Org1 Users have access to this link
+    const res3 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+    expect(res3.statusCode).toBe(200);
+
+    const res4 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res4.statusCode).toBe(200);
+
+    const res5 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG2_USER1_TOKEN");
+    expect(res5.statusCode).toBe(404);
+  });
+
+  it("Allow Duplicate Public Shortlink in DIFFERENT ORG", async () => {
+    // Creating a duplicate shortlink in same org should give Error
+    const res = await request(app)
+      .post("/link")
+      .send({
+        fullUrl: "https://pubtest.com",
+        shortLink: "gapubtest2",
+        private: false,
+        type: "static",
+      })
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe(
+      "This shortlink is already defined for your org"
+    );
+
+    const res2 = await request(app)
+      .post("/link")
+      .send({
+        fullUrl: "https://pubtest.com",
+        shortLink: "gapubtest2",
+        private: false,
+        type: "static",
+      })
+      .set("Authorization", "Bearer ORG2_USER1_TOKEN");
+
+    expect(res2.statusCode).toBe(200);
+    const linkId = res2.body.id;
+
+    //Ensure only Org1 User1 have access to this link
+    const res3 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+    expect(res3.statusCode).toBe(404);
+
+    const res4 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG2_ADMIN_TOKEN");
+    expect(res4.statusCode).toBe(200);
+
+    const res5 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG2_USER1_TOKEN");
+    expect(res5.statusCode).toBe(200);
+  });
+});
+
   });
 });
 
