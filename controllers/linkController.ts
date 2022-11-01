@@ -91,10 +91,10 @@ export const getLinkDetails = (req: Request, res: Response) => {
       where: {
         id: linkId,
         [Op.or]: [
-            { orgId: orgId, private: false },
-            { orgId: orgId, private: true, createdBy: req.auth.userId },
+          { orgId: orgId, private: false },
+          { orgId: orgId, private: true, createdBy: req.auth.userId },
         ],
-      }
+      },
     })
     .then((data: typeof link) => {
       if (data) {
@@ -112,7 +112,9 @@ export const getLinkDetails = (req: Request, res: Response) => {
         res.status(404).json({ error: "Link with this id not found!" });
       }
     })
-    .catch(() => res.status(500).json({ error: "Could not get details for id" }));
+    .catch(() =>
+      res.status(500).json({ error: "Could not get details for id" })
+    );
 };
 
 export const getAllLinks = (req: Request, res: Response) => {
