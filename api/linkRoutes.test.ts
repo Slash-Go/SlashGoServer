@@ -180,7 +180,6 @@ describe("GET /link", () => {
   });
 });
 
-
 describe("GET private link", () => {
   it("should return Not Found for Global Admin in her org", async () => {
     const res = await request(app)
@@ -192,7 +191,7 @@ describe("GET private link", () => {
   it("should return Not Found for Global Admin when they pass org value", async () => {
     const res = await request(app)
       .get("/link/93000000-0001-3370-a000-000000000001")
-      .send({orgId: "10000000-0001-3370-0000-000000000001"})
+      .send({ orgId: "10000000-0001-3370-0000-000000000001" })
       .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
     expect(res.statusCode).toBe(404);
   });
@@ -245,7 +244,7 @@ describe("GET public link", () => {
   it("should return 200 OK for Global Admin when they pass org value", async () => {
     const res = await request(app)
       .get("/link/91000000-0001-3370-a000-000000000001")
-      .send({orgId: "10000000-0001-3370-0000-000000000001"})
+      .send({ orgId: "10000000-0001-3370-0000-000000000001" })
       .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
     expect(res.statusCode).toBe(200);
     expect(res.body.shortLink).toBe("publico1admin");
@@ -255,8 +254,8 @@ describe("GET public link", () => {
     const res = await request(app)
       .get("/link/91000000-0001-3370-a000-000000000001")
       .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
-      expect(res.statusCode).toBe(200);
-      expect(res.body.shortLink).toBe("publico1admin");
+    expect(res.statusCode).toBe(200);
+    expect(res.body.shortLink).toBe("publico1admin");
   });
 
   it("should return Not Found and org admin of different org", async () => {
@@ -277,16 +276,18 @@ describe("GET public link", () => {
     const res = await request(app)
       .get("/link/91000000-0001-3370-a000-000000000001")
       .set("Authorization", "Bearer ORG1_USER2_TOKEN");
-      expect(res.statusCode).toBe(200);
-      expect(res.body.shortLink).toBe("publico1admin");
+    expect(res.statusCode).toBe(200);
+    expect(res.body.shortLink).toBe("publico1admin");
   });
 
   it("should return 200 OK for Org1 User1", async () => {
     const res = await request(app)
       .get("/link/91000000-0001-3370-a000-000000000001")
       .set("Authorization", "Bearer ORG1_USER1_TOKEN");
-      expect(res.statusCode).toBe(200);
-      expect(res.body.shortLink).toBe("publico1admin");
+    expect(res.statusCode).toBe(200);
+    expect(res.body.shortLink).toBe("publico1admin");
+  });
+});
   });
 });
 
