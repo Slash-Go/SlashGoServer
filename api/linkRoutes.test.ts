@@ -496,6 +496,91 @@ describe("Create public link", () => {
   });
 });
 
+describe("Create private link", () => {
+  it.skip("Global Admin Create Private link in Another Org", async () => {
+    const res = await request(app)
+      .post("/link")
+      .send({
+        fullUrl: "https://privtest.com",
+        shortLink: "admpritest",
+        private: false,
+        type: "static",
+        orgId: "10000000-0001-3370-0000-000000000001",
+      })
+      .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(400);
+  });
+
+  it("Create Private link in Org As Non-Global Admin", async () => {
+    const res = await request(app)
+      .post("/link")
+      .send({
+        fullUrl: "https://privtest.com",
+        shortLink: "admpritest",
+        private: true,
+        type: "static",
+      })
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+
+    expect(res.statusCode).toBe(200);
+    // Ensure orgId is Org1 Id, not Org2 Id
+    expect(res.body.orgId).toBe("10000000-0001-3370-0000-000000000001");
+    const linkId = res.body.id;
+
+    //Ensure only Org1 Users have access to this link
+    const res3 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+    expect(res3.statusCode).toBe(200);
+
+    const res4 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res4.statusCode).toBe(404);
+
+    const res5 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG2_USER1_TOKEN");
+    expect(res5.statusCode).toBe(404);
+  });
+
+  it("Allow Duplicate Private Shortlink in Same Org BY DIFFERENT USER", async () => {
+    const res = await request(app)
+      .post("/link")
+      .send({
+        fullUrl: "https://privtest.com",
+        shortLink: "admpritest",
+        private: true,
+        type: "static",
+      })
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe("This private shortlink is already defined");
+
+    const res2 = await request(app)
+      .post("/link")
+      .send({
+        fullUrl: "https://privtest.com",
+        shortLink: "admpritest",
+        private: true,
+        type: "static",
+      })
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+
+    expect(res2.statusCode).toBe(200);
+    const linkId = res2.body.id;
+
+    //Ensure only Org1 User1 have access to this link
+    const res3 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+    expect(res3.statusCode).toBe(404);
+
+    const res4 = await request(app)
+      .get(`/link/${linkId}`)
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res4.statusCode).toBe(200);
   });
 });
 
