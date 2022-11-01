@@ -68,8 +68,15 @@ module.exports = {
         queryInterface.addIndex(
           "links",
           ["org_id", "short_link", "created_by", "private"],
-          { unique: true, name: "shortlink_index" }
+          { unique: true, name: "org_private_shortlink_index" }
         );
+        queryInterface.addIndex("links", ["org_id", "short_link"], {
+          unique: true,
+          name: "org_public_shortlink_index",
+          where: {
+            private: false,
+          },
+        });
       });
   },
   async down(queryInterface, Sequelize) {
