@@ -272,11 +272,9 @@ export const deleteLink = (req: Request, res: Response) => {
       if (data === 1) {
         return res.status(200).json({ status: `OK` });
       } else {
-        return res
-          .status(400)
-          .json({
-            error: `Unable to delete shortlink. Ensure you have access to delete this shortlink`,
-          });
+        return res.status(400).json({
+          error: `Unable to delete shortlink. Ensure you have access to delete this shortlink`,
+        });
       }
     })
     .catch(() => {
