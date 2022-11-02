@@ -56,6 +56,14 @@ jest.mock("../middleware/authMiddleware", () => {
                 userId: "00000000-0001-3370-0000-000000000051",
                 orgId: "10000000-0001-3370-0000-000000000002",
               });
+            } else if (
+              req.headers.authorization === "Bearer NODATAORG_ADMIN_TOKEN"
+            ) {
+              req.auth = new Auth({
+                userRole: "admin",
+                userId: "00000000-0001-3370-0000-000000000061",
+                orgId: "10000000-0001-3370-0000-000000000003",
+              });
             }
             next();
           });
@@ -68,7 +76,7 @@ jest.mock("../middleware/authMiddleware", () => {
   });
 });
 
-describe("GET /link", () => {
+describe("GET all links", () => {
   it("should return 200 OK and one link of global org for Global Admin", async () => {
     const res = await request(app)
       .get("/link")
@@ -83,19 +91,33 @@ describe("GET /link", () => {
       .get("/link")
       .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
     expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBe(2);
-    expect(res.body[0].shortLink).toBe("privateo1admin");
-    expect(res.body[1].shortLink).toBe("publico1admin");
+    expect(res.body.length).toBe(5);
+    expect(res.body[0].shortLink).toBe("2publico1u1");
+    expect(res.body[1].shortLink).toBe("3publico1u1");
+    expect(res.body[2].shortLink).toBe("privateo1admin");
+    expect(res.body[3].shortLink).toBe("publico1admin");
+    expect(res.body[4].shortLink).toBe("publico1u1");
   });
 
-  it("should return 200 OK and 1 link of org1 for Org1 User1", async () => {
+  it("should return 200 OK and 5 link of org1 for Org1 User1", async () => {
     const res = await request(app)
       .get("/link")
       .set("Authorization", "Bearer ORG1_USER1_TOKEN");
     expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBe(2);
-    expect(res.body[0].shortLink).toBe("privateo1u1");
-    expect(res.body[1].shortLink).toBe("publico1admin");
+    expect(res.body.length).toBe(5);
+    expect(res.body[0].shortLink).toBe("2publico1u1");
+    expect(res.body[1].shortLink).toBe("3publico1u1");
+    expect(res.body[2].shortLink).toBe("privateo1u1");
+    expect(res.body[3].shortLink).toBe("publico1admin");
+    expect(res.body[4].shortLink).toBe("publico1u1");
+  });
+
+  it("should return 200 OK and no data of admin of nodataorg", async () => {
+    const res = await request(app)
+      .get("/link")
+      .set("Authorization", "Bearer NODATAORG_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(200);
+    expect(res.body.length).toBe(0);
   });
 
   it("should return 200 OK and 1 link of org1 for Org1 User2", async () => {
@@ -103,64 +125,11 @@ describe("GET /link", () => {
       .get("/link")
       .set("Authorization", "Bearer ORG1_USER2_TOKEN");
     expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBe(1);
-    expect(res.body[0].shortLink).toBe("publico1admin");
-  });
-
-  it("should return 200 OK and no links of org2 for Org2 Admin", async () => {
-    const res = await request(app)
-      .get("/link")
-      .set("Authorization", "Bearer ORG2_ADMIN_TOKEN");
-    expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBe(0);
-  });
-
-  it("should return 200 OK and no links of org2 for Org2 user1", async () => {
-    const res = await request(app)
-      .get("/link")
-      .set("Authorization", "Bearer ORG2_USER1_TOKEN");
-    expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBe(0);
-  });
-});
-
-describe("GET /link", () => {
-  it("should return 200 OK and one link of global org for Global Admin", async () => {
-    const res = await request(app)
-      .get("/link")
-      .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
-    expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBe(1);
-    expect(res.body[0].shortLink).toBe("code");
-  });
-
-  it("should return 200 OK and 2 links of org1 for Org1 Admin", async () => {
-    const res = await request(app)
-      .get("/link")
-      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
-    expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBe(2);
-    expect(res.body[0].shortLink).toBe("privateo1admin");
-    expect(res.body[1].shortLink).toBe("publico1admin");
-  });
-
-  it("should return 200 OK and 1 link of org1 for Org1 User1", async () => {
-    const res = await request(app)
-      .get("/link")
-      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
-    expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBe(2);
-    expect(res.body[0].shortLink).toBe("privateo1u1");
-    expect(res.body[1].shortLink).toBe("publico1admin");
-  });
-
-  it("should return 200 OK and 1 link of org1 for Org1 User2", async () => {
-    const res = await request(app)
-      .get("/link")
-      .set("Authorization", "Bearer ORG1_USER2_TOKEN");
-    expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBe(1);
-    expect(res.body[0].shortLink).toBe("publico1admin");
+    expect(res.body.length).toBe(4);
+    expect(res.body[0].shortLink).toBe("2publico1u1");
+    expect(res.body[1].shortLink).toBe("3publico1u1");
+    expect(res.body[2].shortLink).toBe("publico1admin");
+    expect(res.body[3].shortLink).toBe("publico1u1");
   });
 
   it("should return 200 OK and no links of org2 for Org2 Admin", async () => {
@@ -234,6 +203,14 @@ describe("GET private link", () => {
 });
 
 describe("GET public link", () => {
+  it("should return 400 if a non-UUID is sent", async () => {
+    const res = await request(app)
+      .get("/link/random-string")
+      .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe("Invalid value provided for `linkId`");
+  });
+
   it("should return Not Found for Global Admin in her org", async () => {
     const res = await request(app)
       .get("/link/91000000-0001-3370-a000-000000000001")
@@ -497,18 +474,21 @@ describe("Create public link", () => {
 });
 
 describe("Create private link", () => {
-  it.skip("Global Admin Create Private link in Another Org", async () => {
+  it("Global Admin Create Private link in Another Org", async () => {
     const res = await request(app)
       .post("/link")
       .send({
         fullUrl: "https://privtest.com",
         shortLink: "admpritest",
-        private: false,
+        private: true,
         type: "static",
         orgId: "10000000-0001-3370-0000-000000000001",
       })
       .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
     expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe(
+      "`global_admin` can only create private links in their own orgs"
+    );
   });
 
   it("Create Private link in Org As Non-Global Admin", async () => {
@@ -581,6 +561,382 @@ describe("Create private link", () => {
       .get(`/link/${linkId}`)
       .set("Authorization", "Bearer ORG1_USER1_TOKEN");
     expect(res4.statusCode).toBe(200);
+  });
+});
+
+describe("Edit public link", () => {
+  it("should return 400 if a non-UUID is sent", async () => {
+    const res = await request(app)
+      .patch("/link/random-string")
+      .send({
+        shortLink: "updlink",
+      })
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe("Invalid value provided for `linkId`");
+  });
+
+  it("Global Admin edits public link in Another Org", async () => {
+    const res = await request(app)
+      .patch("/link/91000000-0001-3370-a000-000000000001")
+      .send({
+        shortLink: "updlink",
+        orgId: "10000000-0001-3370-0000-000000000001",
+      })
+      .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(200);
+
+    const res2 = await request(app)
+      .get("/link/91000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.shortLink).toBe("updlink");
+  });
+
+  it("Org Admin edits public link in Another Org", async () => {
+    const res = await request(app)
+      .patch("/link/91000000-0001-3370-a000-000000000001")
+      .send({
+        shortLink: "updlink2",
+        orgId: "10000000-0001-3370-0000-000000000001",
+      })
+      .set("Authorization", "Bearer ORG2_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe(
+      "Invalid fields provided for update operation `orgId`"
+    );
+
+    const res2 = await request(app)
+      .get("/link/91000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.shortLink).toBe("updlink");
+  });
+
+  it("User edits public link in Same Org Created by different user", async () => {
+    const res = await request(app)
+      .patch("/link/91000000-0001-3370-a000-000000000001")
+      .send({
+        shortLink: "updlink2",
+      })
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe(
+      "Unable to update link. Ensure you the creator of this shortlink or an admin"
+    );
+
+    const res2 = await request(app)
+      .get("/link/91000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.shortLink).toBe("updlink");
+  });
+
+  it("User edits public link in Same Org created by her", async () => {
+    const res = await request(app)
+      .patch("/link/94000000-0001-3370-a000-000000000001")
+      .send({
+        active: false,
+      })
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res.statusCode).toBe(200);
+
+    const res2 = await request(app)
+      .get("/link/94000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.active).toBe(false);
+  });
+
+  it("Org Admin edits public link in Same Org created by different user", async () => {
+    const res = await request(app)
+      .patch("/link/94000000-0001-3370-a000-000000000001")
+      .send({
+        shortLink: "updlink2",
+      })
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(200);
+
+    const res2 = await request(app)
+      .get("/link/94000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.shortLink).toBe("updlink2");
+  });
+});
+
+describe("Edit private link", () => {
+  it("Global Admin edits public link in Another Org", async () => {
+    const res = await request(app)
+      .patch("/link/93000000-0001-3370-a000-000000000001")
+      .send({
+        shortLink: "updprivlink",
+        orgId: "10000000-0001-3370-0000-000000000001",
+      })
+      .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(200);
+
+    const res2 = await request(app)
+      .get("/link/93000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.shortLink).toBe("updprivlink");
+  });
+
+  it("Org Admin edits private link in Another Org", async () => {
+    const res = await request(app)
+      .patch("/link/93000000-0001-3370-a000-000000000001")
+      .send({
+        shortLink: "updlink2",
+        orgId: "10000000-0001-3370-0000-000000000001",
+      })
+      .set("Authorization", "Bearer ORG2_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe(
+      "Invalid fields provided for update operation `orgId`"
+    );
+
+    const res2 = await request(app)
+      .get("/link/93000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.shortLink).toBe("updprivlink");
+  });
+
+  it("User edits private link in Same Org Created by different user", async () => {
+    const res = await request(app)
+      .patch("/link/93000000-0001-3370-a000-000000000001")
+      .send({
+        shortLink: "updlink2",
+      })
+      .set("Authorization", "Bearer ORG1_USER2_TOKEN");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe(
+      "Unable to update link. Ensure you the creator of this shortlink or an admin"
+    );
+
+    const res2 = await request(app)
+      .get("/link/93000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.shortLink).toBe("updprivlink");
+  });
+
+  it("User edits private link in Same Org created by her", async () => {
+    const res = await request(app)
+      .patch("/link/93000000-0001-3370-a000-000000000001")
+      .send({
+        active: false,
+      })
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res.statusCode).toBe(200);
+
+    const res2 = await request(app)
+      .get("/link/93000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.active).toBe(false);
+  });
+
+  it("Org Admin edits private link in Same Org created by different user", async () => {
+    const res = await request(app)
+      .patch("/link/93000000-0001-3370-a000-000000000001")
+      .send({
+        shortLink: "updprivlink2",
+      })
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(200);
+
+    const res2 = await request(app)
+      .get("/link/93000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.shortLink).toBe("updprivlink2");
+  });
+});
+
+describe("Delete public link", () => {
+  it("should return 400 if a non-UUID is sent", async () => {
+    const res = await request(app)
+      .delete("/link/random-string")
+      .send({
+        shortLink: "updlink",
+      })
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe("Invalid value provided for `linkId`");
+  });
+
+  it("Org Admin deletes public link in Another Org", async () => {
+    const res = await request(app)
+      .delete("/link/94000000-0001-3370-a000-000000000001")
+      .send({
+        orgId: "10000000-0001-3370-0000-000000000001",
+      })
+      .set("Authorization", "Bearer ORG2_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe(
+      "Unable to delete shortlink. Ensure you have access to delete this shortlink"
+    );
+
+    const res2 = await request(app)
+      .get("/link/94000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+  });
+
+  it("User deletes public link in Same Org Created by different user", async () => {
+    const res = await request(app)
+      .delete("/link/94000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER2_TOKEN");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe(
+      "Unable to delete shortlink. Ensure you have access to delete this shortlink"
+    );
+
+    const res2 = await request(app)
+      .get("/link/94000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.shortLink).toBe("updlink2");
+  });
+
+  it("Global Admin deletes public link in Another Org", async () => {
+    const res = await request(app)
+      .delete("/link/94000000-0001-3370-a000-000000000001")
+      .send({
+        orgId: "10000000-0001-3370-0000-000000000001",
+      })
+      .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(200);
+    expect(res.body.status).toBe("OK");
+
+    const res2 = await request(app)
+      .get("/link/94000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(404);
+  });
+
+  it("User deletes public link in Same Org created by her", async () => {
+    const res = await request(app)
+      .delete("/link/95000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res.statusCode).toBe(200);
+
+    const res2 = await request(app)
+      .get("/link/95000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(404);
+  });
+
+  it("Org Admin deletes public link in Same Org created by different user", async () => {
+    const res = await request(app)
+      .get("/link/96000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res.statusCode).toBe(200);
+
+    const res1 = await request(app)
+      .delete("/link/96000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+    expect(res1.statusCode).toBe(200);
+
+    const res2 = await request(app)
+      .get("/link/96000000-0001-3370-a000-000000000001")
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(404);
+  });
+});
+
+describe("Delete private link", () => {
+  let createdLinks: string[] = [];
+
+  // Create Dummy Private Links for Org 1 User 1
+  beforeAll(async () => {
+    for (let i = 0; i < 3; i++) {
+      const res = await request(app)
+        .post("/link")
+        .send({
+          fullUrl: "https://privtest.com",
+          shortLink: `delprivtest${i}`,
+          private: true,
+          type: "static",
+        })
+        .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+
+      createdLinks.push(res.body.id);
+    }
+  });
+
+  it("Global Admin deleted private link in Another Org", async () => {
+    const res = await request(app)
+      .delete(`/link/${createdLinks[0]}`)
+      .send({
+        orgId: "10000000-0001-3370-0000-000000000001",
+      })
+      .set("Authorization", "Bearer GLOBAL_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(200);
+
+    const res2 = await request(app)
+      .get(`/link/${createdLinks[0]}`)
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(404);
+  });
+
+  it("Org Admin deletes private link in Another Org", async () => {
+    const res = await request(app)
+      .delete(`/link/${createdLinks[1]}`)
+      .send({
+        orgId: "10000000-0001-3370-0000-000000000001",
+      })
+      .set("Authorization", "Bearer ORG2_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe(
+      "Unable to delete shortlink. Ensure you have access to delete this shortlink"
+    );
+
+    const res2 = await request(app)
+      .get(`/link/${createdLinks[1]}`)
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+  });
+
+  it("User deletes private link in Same Org Created by different user", async () => {
+    const res = await request(app)
+      .delete(`/link/${createdLinks[1]}`)
+      .set("Authorization", "Bearer ORG1_USER2_TOKEN");
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe(
+      "Unable to delete shortlink. Ensure you have access to delete this shortlink"
+    );
+
+    const res2 = await request(app)
+      .get(`/link/${createdLinks[1]}`)
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(200);
+  });
+
+  it("User deletes private link in Same Org created by her", async () => {
+    const res = await request(app)
+      .delete(`/link/${createdLinks[1]}`)
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res.statusCode).toBe(200);
+
+    const res2 = await request(app)
+      .get(`/link/${createdLinks[1]}`)
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(404);
+  });
+
+  it("Org Admin edits private link in Same Org created by different user", async () => {
+    const res = await request(app)
+      .delete(`/link/${createdLinks[2]}`)
+      .set("Authorization", "Bearer ORG1_ADMIN_TOKEN");
+    expect(res.statusCode).toBe(200);
+
+    const res2 = await request(app)
+      .get(`/link/${createdLinks[2]}`)
+      .set("Authorization", "Bearer ORG1_USER1_TOKEN");
+    expect(res2.statusCode).toBe(404);
   });
 });
 

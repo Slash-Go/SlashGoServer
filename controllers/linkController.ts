@@ -3,17 +3,11 @@ import { Op } from "sequelize";
 import { v4 as uuidv4, validate as isValidUUID } from "uuid";
 import db from "../models";
 import { getOrgId } from "../utils/apiutils";
-import { linkTypes } from "../utils/defaults";
+import { linkTypes, userRoles } from "../utils/defaults";
 
 export const createLink = (req: Request, res: Response) => {
   const DB: any = db;
   const { link } = DB;
-
-  const shortLink: string = req.body["shortLink"];
-  const fullUrl: string = req.body["fullUrl"];
-  const description: string = req.body["description"];
-  const type: linkTypes = req.body["type"];
-  const isPrivate: boolean = req.body["private"];
 
   const requiredFields = ["shortLink", "fullUrl", "type", "private"];
   for (let i of requiredFields) {
@@ -24,9 +18,26 @@ export const createLink = (req: Request, res: Response) => {
     }
   }
 
+  const shortLink: string = req.body["shortLink"];
+  const fullUrl: string = req.body["fullUrl"];
+  const description: string = req.body["description"];
+  const type: linkTypes = req.body["type"];
+  const isPrivate: boolean = req.body["private"];
+
   if (!Object.values(linkTypes)?.includes(type)) {
     return res.status(400).json({
       error: `\`type\` can only be \`static\` or \`dynamic\``,
+    });
+  }
+
+  if (
+    req.auth.userRole === userRoles.global_admin &&
+    req.body.orgId &&
+    req.body.orgId !== req.auth.orgId &&
+    isPrivate
+  ) {
+    return res.status(400).json({
+      error: `\`global_admin\` can only create private links in their own orgs`,
     });
   }
 
@@ -50,6 +61,7 @@ export const createLink = (req: Request, res: Response) => {
         id: data.id,
         orgId: data.orgId,
         shortLink: data.shortLink,
+        fullUrl: data.fullUrl,
         description: data.description,
         type: data.type,
         private: data.private,
@@ -105,6 +117,7 @@ export const getLinkDetails = (req: Request, res: Response) => {
           shortLink: data.shortLink,
           fullUrl: data.fullUrl,
           description: data.description,
+          active: data.active,
           private: data.private,
           type: data.type,
           createdBy: data.createdBy,
@@ -132,28 +145,24 @@ export const getAllLinks = (req: Request, res: Response) => {
         ],
       },
     })
-    .then((data: Array<any>) => {
-      if (data) {
-        res.json(
-          data.map((data) => {
-            return {
-              id: data.id,
-              shortLink: data.shortLink,
-              fullUrl: data.fullUrl,
-              description: data.description,
-              private: data.private,
-              createdBy: data.createdBy,
-              type: data.type,
-            };
-          })
-        );
-      } else {
-        res.json({});
-      }
+    .then((data: Array<typeof link>) => {
+      return res.json(
+        data.map((data) => {
+          return {
+            id: data.id,
+            shortLink: data.shortLink,
+            fullUrl: data.fullUrl,
+            description: data.description,
+            private: data.private,
+            createdBy: data.createdBy,
+            type: data.type,
+          };
+        })
+      );
     })
-    .catch(() =>
-      res.status(500).json({ error: `Unable to get links for user` })
-    );
+    .catch(() => {
+      return res.status(500).json({ error: `Unable to get links for user` });
+    });
 };
 
 export const updateLink = (req: Request, res: Response) => {
@@ -173,6 +182,9 @@ export const updateLink = (req: Request, res: Response) => {
   }
 
   const orgId = getOrgId(req);
+  if (req.auth.userRole == userRoles.global_admin && req.auth.orgId !== orgId) {
+    delete req.body.orgId;
+  }
   const updateRule = { orgId: orgId, id: linkId };
 
   // non admins can only update links they created
@@ -186,6 +198,7 @@ export const updateLink = (req: Request, res: Response) => {
     "fullUrl",
     "type",
     "private",
+    "active",
   ];
   const invalidFields = [];
   for (let i of Object.keys(req.body)) {
@@ -218,7 +231,10 @@ export const updateLink = (req: Request, res: Response) => {
           createdBy: data[1][0].dataValues.createdBy,
         });
       } else {
-        return res.status(404).json({ error: "Link with this id not found!" });
+        return res.status(400).json({
+          error:
+            "Unable to update link. Ensure you the creator of this shortlink or an admin",
+        });
       }
     })
     .catch(() => res.json({ error: "Could not get details for id" }));
@@ -253,12 +269,14 @@ export const deleteLink = (req: Request, res: Response) => {
       where: deleteRule,
     })
     .then((data: any) => {
-      if (data[0] == 1) {
+      if (data === 1) {
         return res.status(200).json({ status: `OK` });
       } else {
         return res
           .status(400)
-          .json({ error: `Unable to delete shortlink. Contact your admin/s.` });
+          .json({
+            error: `Unable to delete shortlink. Ensure you have access to delete this shortlink`,
+          });
       }
     })
     .catch(() => {

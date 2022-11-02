@@ -25,6 +25,14 @@ module.exports = async function (
     orgHero: DEFAULT_ORG_HERO,
   });
 
+  await organization.create({
+    id: "10000000-0001-3370-0000-000000000003",
+    name: "No_Data_Org",
+    licenses: 5,
+    active: true,
+    orgHero: DEFAULT_ORG_HERO,
+  });
+
   // Adding Test Users
   // Org1 Admin
   await user.create({
@@ -86,6 +94,18 @@ module.exports = async function (
     status: userStatus.active,
   });
 
+  // NoDataOrg Admin
+  await user.create({
+    id: "00000000-0001-3370-0000-000000000061",
+    orgId: "10000000-0001-3370-0000-000000000003",
+    email: "admin@nodataorg.com",
+    firstName: "Admin",
+    role: "admin",
+    lastName: "NoDataOrg",
+    password: "HASHED_PASSWORD",
+    status: userStatus.active,
+  });
+
   await link.create({
     id: "91000000-0001-3370-a000-000000000001",
     orgId: "10000000-0001-3370-0000-000000000001",
@@ -117,6 +137,42 @@ module.exports = async function (
     fullUrl: "https://o1user1.com",
     description: "Private Link created by Org1 User1",
     private: true,
+    type: "static",
+    createdBy: "00000000-0001-3370-0000-000000000021",
+    active: true,
+  });
+
+  await link.create({
+    id: "94000000-0001-3370-a000-000000000001",
+    orgId: "10000000-0001-3370-0000-000000000001",
+    shortLink: "publico1u1",
+    fullUrl: "https://publico1user1.com",
+    description: "Public Link created by Org1 User1",
+    private: false,
+    type: "static",
+    createdBy: "00000000-0001-3370-0000-000000000021",
+    active: true,
+  });
+
+  await link.create({
+    id: "95000000-0001-3370-a000-000000000001",
+    orgId: "10000000-0001-3370-0000-000000000001",
+    shortLink: "2publico1u1",
+    fullUrl: "https://publico1user1.com",
+    description: "Public Link 2 created by Org1 User1",
+    private: false,
+    type: "static",
+    createdBy: "00000000-0001-3370-0000-000000000021",
+    active: true,
+  });
+
+  await link.create({
+    id: "96000000-0001-3370-a000-000000000001",
+    orgId: "10000000-0001-3370-0000-000000000001",
+    shortLink: "3publico1u1",
+    fullUrl: "https://publico1user1.com",
+    description: "Public Link 3 created by Org1 User1",
+    private: false,
     type: "static",
     createdBy: "00000000-0001-3370-0000-000000000021",
     active: true,
