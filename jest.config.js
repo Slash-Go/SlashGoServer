@@ -4,4 +4,5 @@ module.exports = {
   testEnvironment: "node",
   testPathIgnorePatterns: ["/node_modules/", "/dist/"],
   globalSetup: "<rootDir>/tests/setup.ts",
+  setupFiles: ["<rootDir>/tests/authMock.ts"],
 };
