@@ -12,7 +12,7 @@ module.exports = {
           short_link: "code",
           full_url: "https://github.com/Slash-Go",
           description: "Github Repo for Slash/Go 🎉",
-          created_by: "00000000-0001-3370-0000-000000000001",
+          created_by: "00000000-0001-3370-a000-000000000001",
           type: "static",
           private: false,
           active: true,

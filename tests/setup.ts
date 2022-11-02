@@ -5,7 +5,7 @@ module.exports = async function (
   globalConfig: { testPathPattern: any },
   projectConfig: { cache: any }
 ) {
-  console.log("Adding Orgs for Tests");
+  console.info("Adding Orgs for Tests");
   const DB: any = db;
   const { organization, user, link } = DB;
 
@@ -34,9 +34,10 @@ module.exports = async function (
   });
 
   // Adding Test Users
+  console.info("Adding Users for Tests");
   // Org1 Admin
   await user.create({
-    id: "00000000-0001-3370-0000-000000000011",
+    id: "00000000-0001-3370-a000-000000000011",
     orgId: "10000000-0001-3370-0000-000000000001",
     email: "admin@org1.com",
     firstName: "Admin",
@@ -48,7 +49,7 @@ module.exports = async function (
 
   // Org1 User1
   await user.create({
-    id: "00000000-0001-3370-0000-000000000021",
+    id: "00000000-0001-3370-a000-000000000021",
     orgId: "10000000-0001-3370-0000-000000000001",
     email: "user1@org1.com",
     firstName: "User1",
@@ -60,7 +61,7 @@ module.exports = async function (
 
   // Org1 User2
   await user.create({
-    id: "00000000-0001-3370-0000-000000000031",
+    id: "00000000-0001-3370-a000-000000000031",
     orgId: "10000000-0001-3370-0000-000000000001",
     email: "user2@org1.com",
     firstName: "User2",
@@ -72,7 +73,7 @@ module.exports = async function (
 
   // Org2 Admin
   await user.create({
-    id: "00000000-0001-3370-0000-000000000041",
+    id: "00000000-0001-3370-a000-000000000041",
     orgId: "10000000-0001-3370-0000-000000000002",
     email: "admin@org2.com",
     firstName: "Admin",
@@ -84,8 +85,8 @@ module.exports = async function (
 
   // Org2 User1
   await user.create({
-    id: "00000000-0001-3370-0000-000000000051",
-    orgId: "10000000-0001-3370-0000-000000000001",
+    id: "00000000-0001-3370-a000-000000000051",
+    orgId: "10000000-0001-3370-0000-000000000002",
     email: "user1@org2.com",
     firstName: "User1",
     role: "user",
@@ -96,7 +97,7 @@ module.exports = async function (
 
   // NoDataOrg Admin
   await user.create({
-    id: "00000000-0001-3370-0000-000000000061",
+    id: "00000000-0001-3370-a000-000000000061",
     orgId: "10000000-0001-3370-0000-000000000003",
     email: "admin@nodataorg.com",
     firstName: "Admin",
@@ -106,6 +107,8 @@ module.exports = async function (
     status: userStatus.active,
   });
 
+  // Adding Test Users
+  console.info("Adding Links for Tests");
   await link.create({
     id: "91000000-0001-3370-a000-000000000001",
     orgId: "10000000-0001-3370-0000-000000000001",
@@ -114,7 +117,7 @@ module.exports = async function (
     description: "Public Link created by Org1 Admin",
     private: false,
     type: "static",
-    createdBy: "00000000-0001-3370-0000-000000000011",
+    createdBy: "00000000-0001-3370-a000-000000000011",
     active: true,
   });
 
@@ -126,7 +129,7 @@ module.exports = async function (
     description: "Private Link created by Org1 Admin ",
     private: true,
     type: "static",
-    createdBy: "00000000-0001-3370-0000-000000000011",
+    createdBy: "00000000-0001-3370-a000-000000000011",
     active: true,
   });
 
@@ -138,7 +141,7 @@ module.exports = async function (
     description: "Private Link created by Org1 User1",
     private: true,
     type: "static",
-    createdBy: "00000000-0001-3370-0000-000000000021",
+    createdBy: "00000000-0001-3370-a000-000000000021",
     active: true,
   });
 
@@ -150,7 +153,7 @@ module.exports = async function (
     description: "Public Link created by Org1 User1",
     private: false,
     type: "static",
-    createdBy: "00000000-0001-3370-0000-000000000021",
+    createdBy: "00000000-0001-3370-a000-000000000021",
     active: true,
   });
 
@@ -162,7 +165,7 @@ module.exports = async function (
     description: "Public Link 2 created by Org1 User1",
     private: false,
     type: "static",
-    createdBy: "00000000-0001-3370-0000-000000000021",
+    createdBy: "00000000-0001-3370-a000-000000000021",
     active: true,
   });
 
@@ -174,7 +177,7 @@ module.exports = async function (
     description: "Public Link 3 created by Org1 User1",
     private: false,
     type: "static",
-    createdBy: "00000000-0001-3370-0000-000000000021",
+    createdBy: "00000000-0001-3370-a000-000000000021",
     active: true,
   });
 };

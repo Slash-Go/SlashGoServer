@@ -11,7 +11,7 @@ jest.mock("../middleware/authMiddleware", () => {
             if (req.headers.authorization === "Bearer GLOBAL_ADMIN_TOKEN") {
               req.auth = new Auth({
                 userRole: "global_admin",
-                userId: "00000000-0001-3370-0000-000000000001",
+                userId: "00000000-0001-3370-a000-000000000001",
                 orgId: "10000000-0001-3370-0000-000000000000",
               });
             } else if (
@@ -19,7 +19,7 @@ jest.mock("../middleware/authMiddleware", () => {
             ) {
               req.auth = new Auth({
                 userRole: "admin",
-                userId: "00000000-0001-3370-0000-000000000011",
+                userId: "00000000-0001-3370-a000-000000000011",
                 orgId: "10000000-0001-3370-0000-000000000001",
               });
             } else if (
@@ -27,7 +27,7 @@ jest.mock("../middleware/authMiddleware", () => {
             ) {
               req.auth = new Auth({
                 userRole: "admin",
-                userId: "00000000-0001-3370-0000-000000000041",
+                userId: "00000000-0001-3370-a000-000000000041",
                 orgId: "10000000-0001-3370-0000-000000000002",
               });
             } else if (
@@ -35,7 +35,7 @@ jest.mock("../middleware/authMiddleware", () => {
             ) {
               req.auth = new Auth({
                 userRole: "user",
-                userId: "00000000-0001-3370-0000-000000000021",
+                userId: "00000000-0001-3370-a000-000000000021",
                 orgId: "10000000-0001-3370-0000-000000000001",
               });
             } else if (
@@ -43,7 +43,7 @@ jest.mock("../middleware/authMiddleware", () => {
             ) {
               req.auth = new Auth({
                 userRole: "user",
-                userId: "00000000-0001-3370-0000-000000000031",
+                userId: "00000000-0001-3370-a000-000000000031",
                 orgId: "10000000-0001-3370-0000-000000000001",
               });
             } else if (
@@ -51,7 +51,7 @@ jest.mock("../middleware/authMiddleware", () => {
             ) {
               req.auth = new Auth({
                 userRole: "user",
-                userId: "00000000-0001-3370-0000-000000000051",
+                userId: "00000000-0001-3370-a000-000000000051",
                 orgId: "10000000-0001-3370-0000-000000000002",
               });
             } else if (
@@ -59,7 +59,7 @@ jest.mock("../middleware/authMiddleware", () => {
             ) {
               req.auth = new Auth({
                 userRole: "admin",
-                userId: "00000000-0001-3370-0000-000000000061",
+                userId: "00000000-0001-3370-a000-000000000061",
                 orgId: "10000000-0001-3370-0000-000000000003",
               });
             }
