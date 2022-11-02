@@ -310,7 +310,7 @@ export const updateUser = (req: Request, res: Response) => {
   const orgId = getOrgId(req);
   const updateRule = { orgId: orgId, id: userId };
 
-  // non admins can only update links they created
+  // non admins can only update their own details
   if (
     req.auth.userRole !== userRoles.admin &&
     req.auth.userRole !== userRoles.global_admin &&
